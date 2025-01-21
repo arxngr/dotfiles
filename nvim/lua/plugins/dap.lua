@@ -5,7 +5,7 @@ return {
     {
       "microsoft/vscode-js-debug",
       -- After install, build it and rename the dist directory to out
-      build = "npm install --legacy-peer-deps --no-save && npx gulp vsDebugServerBundle && rm -rf out && mv dist out",
+      build = "npm install --legacy-peer-deps --no-save && npx gulp vsDebugServerBundle",
       version = "1.*",
     },
     {
@@ -18,19 +18,23 @@ return {
   end,
   config = function()
     local dap = require("dap")
+    local function get_current_script_path()
+      local info = debug.getinfo(1, "S") -- Get info about the current script
+      return info.source:sub(2):match("(.*/)") -- Extract the directory path from the file
+    end
 
     dap.adapters["pwa-node"] = {
       type = "server",
       host = "localhost",
       port = "${port}",
       executable = {
-        command = "js-debug-adapter",
+        command = "node", -- in this section, i want use 'js-debug-adapter' first, if not found then switch to node
         args = {
+          get_current_script_path() .. "/dap-adapters/js-debug/src/dapDebugServer.js", -- in this section, if i use 'js-debug-adapter' then make it undefined
           "${port}",
         },
       },
     }
-
     dap.adapters.cppdbg = {
       id = "cppdbg",
       type = "executable",
