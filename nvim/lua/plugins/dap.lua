@@ -21,7 +21,7 @@ return {
 
     dap.adapters["pwa-node"] = {
       type = "server",
-      host = "::1",
+      host = "localhost",
       port = "${port}",
       executable = {
         command = "js-debug-adapter",
