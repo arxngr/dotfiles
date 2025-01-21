@@ -40,4 +40,4 @@ keymap("n", "<C-v>", '"+p', { noremap = true, silent = true })
 keymap("v", "<C-v>", '"+p', { noremap = true, silent = true })
 keymap("n", "<C-d>", "mciw*<Cmd>nohl<CR>", { remap = true })
 
-keymap("n", "<leader>dt", ":ToggleTerm direction=float<CR>", { noremap = true, silent = true, desc = "Terminal" })
+keymap("n", "<leader>tt", ":ToggleTerm direction=float<CR>", { noremap = true, silent = true, desc = "Terminal" })
