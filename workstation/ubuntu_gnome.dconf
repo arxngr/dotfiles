@@ -1,0 +1,746 @@
+[apps/update-manager]
+first-run=false
+launch-count=3
+launch-time=int64 1735575606
+
+[com/github/Ory0n/Resource_Monitor]
+cpucolors=@as []
+cpufrequencystatus=false
+cpuloadaveragestatus=false
+cpustatus=false
+cpuwidth=0
+decimalsstatus=false
+diskdeviceslist=['/dev/nvme0n1p2 / false false /dev/nvme0n1p2', 'efivarfs /sys/firmware/efi/efivars false false efivarfs', '/dev/nvme0n1p1 /boot/efi false false /dev/nvme0n1p1']
+diskspacestatus=false
+diskstatsstatus=false
+diskstatsunitmeasure='auto'
+gpudeviceslist=['GPU-3af838ab-1df5-fd17-e582-fd31f65b6a61:NVIDIA GeForce RTX 4060:false:false:NVIDIA GeForce RTX 4060']
+iconsstatus=false
+leftclickstatus='gnome-system-monitor'
+netethstatus=false
+netunitmeasure='g'
+netwlanstatus=false
+ramalert=false
+ramcolors=@as []
+ramstatus=false
+ramunit='numeric'
+refreshtime=1
+rightclickstatus=false
+swapstatus=false
+thermalcputemperaturedeviceslist=['coretemp: Core 8-false-/sys/class/hwmon/hwmon5/temp10_input', 'coretemp: Core 12-false-/sys/class/hwmon/hwmon5/temp14_input', 'coretemp: Core 16-false-/sys/class/hwmon/hwmon5/temp18_input', 'coretemp: Package id 0-false-/sys/class/hwmon/hwmon5/temp1_input', 'coretemp: Core 20-false-/sys/class/hwmon/hwmon5/temp22_input', 'coretemp: Core 24-false-/sys/class/hwmon/hwmon5/temp26_input', 'coretemp: Core 0-false-/sys/class/hwmon/hwmon5/temp2_input', 'coretemp: Core 28-false-/sys/class/hwmon/hwmon5/temp30_input', 'coretemp: Core 32-false-/sys/class/hwmon/hwmon5/temp34_input', 'coretemp: Core 33-false-/sys/class/hwmon/hwmon5/temp35_input', 'coretemp: Core 34-false-/sys/class/hwmon/hwmon5/temp36_input', 'coretemp: Core 35-false-/sys/class/hwmon/hwmon5/temp37_input', 'coretemp: Core 36-false-/sys/class/hwmon/hwmon5/temp38_input', 'coretemp: Core 37-false-/sys/class/hwmon/hwmon5/temp39_input', 'coretemp: Core 38-false-/sys/class/hwmon/hwmon5/temp40_input', 'coretemp: Core 39-false-/sys/class/hwmon/hwmon5/temp41_input', 'coretemp: Core 40-false-/sys/class/hwmon/hwmon5/temp42_input', 'coretemp: Core 41-false-/sys/class/hwmon/hwmon5/temp43_input', 'coretemp: Core 42-false-/sys/class/hwmon/hwmon5/temp44_input', 'coretemp: Core 43-false-/sys/class/hwmon/hwmon5/temp45_input', 'coretemp: Core 4-false-/sys/class/hwmon/hwmon5/temp6_input']
+thermalcputemperaturestatus=true
+thermalgputemperaturedeviceslist=['GPU-3af838ab-1df5-fd17-e582-fd31f65b6a61:NVIDIA GeForce RTX 4060:false']
+thermalgputemperaturestatus=false
+
+[com/ubuntu/update-notifier]
+release-check-time=uint32 1735560844
+
+[desktop/ibus/general]
+preload-engines=['xkb:us::eng']
+version='1.5.29'
+
+[org/gnome/Extensions]
+window-height=2038
+window-maximized=false
+window-width=1798
+
+[org/gnome/GWeather4]
+temperature-unit='centigrade'
+
+[org/gnome/Geary]
+migrated-config=true
+
+[org/gnome/Totem]
+active-plugins=['save-file', 'recent', 'variable-rate', 'mpris', 'skipto', 'screensaver', 'open-directory', 'vimeo', 'rotation', 'autoload-subtitles', 'apple-trailers', 'movie-properties', 'screenshot']
+subtitle-encoding='UTF-8'
+
+[org/gnome/Weather]
+locations=[<(uint32 2, <('Tangerang', 'WIII', true, [(-0.10675597839808398, 1.8613936472519526)], [(-0.10783178189572078, 1.8610775506711239)])>)>]
+window-height=514
+window-maximized=false
+window-width=992
+
+[org/gnome/calculator]
+accuracy=9
+angle-units='degrees'
+base=10
+button-mode='basic'
+number-format='automatic'
+show-thousands=false
+show-zeroes=false
+source-currency=''
+source-units='degree'
+target-currency=''
+target-units='radian'
+window-maximized=false
+window-size=(360, 496)
+word-size=64
+
+[org/gnome/control-center]
+last-panel='keyboard'
+window-state=(1798, 2038, false)
+
+[org/gnome/deja-dup]
+backend='google'
+prompt-check='2024-12-16T10:05:11.391634Z'
+
+[org/gnome/desktop/app-folders]
+folder-children=['Utilities', 'YaST', 'Pardus']
+
+[org/gnome/desktop/app-folders/folders/Pardus]
+categories=['X-Pardus-Apps']
+name='X-Pardus-Apps.directory'
+translate=true
+
+[org/gnome/desktop/app-folders/folders/Utilities]
+apps=['gnome-abrt.desktop', 'gnome-system-log.desktop', 'nm-connection-editor.desktop', 'org.gnome.baobab.desktop', 'org.gnome.Connections.desktop', 'org.gnome.DejaDup.desktop', 'org.gnome.Dictionary.desktop', 'org.gnome.DiskUtility.desktop', 'org.gnome.Evince.desktop', 'org.gnome.FileRoller.desktop', 'org.gnome.fonts.desktop', 'org.gnome.Loupe.desktop', 'org.gnome.seahorse.Application.desktop', 'org.gnome.tweaks.desktop', 'org.gnome.Usage.desktop', 'vinagre.desktop']
+categories=['X-GNOME-Utilities']
+name='X-GNOME-Utilities.directory'
+translate=true
+
+[org/gnome/desktop/app-folders/folders/YaST]
+categories=['X-SuSE-YaST']
+name='suse-yast.directory'
+translate=true
+
+[org/gnome/desktop/background]
+color-shading-type='solid'
+picture-options='zoom'
+picture-uri='file:///home/ardi/.local/share/backgrounds/2024-12-30-20-22-06-1354205.jpeg'
+picture-uri-dark='file:///home/ardi/.local/share/backgrounds/2024-12-30-20-22-06-1354205.jpeg'
+primary-color='#000000000000'
+secondary-color='#000000000000'
+
+[org/gnome/desktop/input-sources]
+sources=[('xkb', 'us')]
+xkb-options=@as []
+
+[org/gnome/desktop/interface]
+color-scheme='prefer-dark'
+gtk-theme='Yaru-blue-dark'
+icon-theme='Yaru-blue'
+text-scaling-factor=1.1000000000000001
+
+[org/gnome/desktop/notifications]
+application-children=['thunderbird-thunderbird', 'apport-gtk', 'org-gnome-fileroller', 'dbeaver-ce', 'libreoffice-writer', 'postman', 'org-gnome-eog', 'org-gnome-texteditor', 'slack-slack', 'libreoffice-startcenter', 'google-chrome', 'org-gnome-extensions', 'code', 'org-kde-kdenlive', 'org-gnome-settings', 'org-gnome-characters']
+
+[org/gnome/desktop/notifications/application/apport-gtk]
+application-id='apport-gtk.desktop'
+
+[org/gnome/desktop/notifications/application/code]
+application-id='code.desktop'
+
+[org/gnome/desktop/notifications/application/dbeaver-ce]
+application-id='dbeaver-ce.desktop'
+
+[org/gnome/desktop/notifications/application/google-chrome]
+application-id='google-chrome.desktop'
+
+[org/gnome/desktop/notifications/application/libreoffice-startcenter]
+application-id='libreoffice-startcenter.desktop'
+
+[org/gnome/desktop/notifications/application/libreoffice-writer]
+application-id='libreoffice-writer.desktop'
+
+[org/gnome/desktop/notifications/application/org-gnome-characters]
+application-id='org.gnome.Characters.desktop'
+
+[org/gnome/desktop/notifications/application/org-gnome-eog]
+application-id='org.gnome.eog.desktop'
+
+[org/gnome/desktop/notifications/application/org-gnome-extensions]
+application-id='org.gnome.Extensions.desktop'
+
+[org/gnome/desktop/notifications/application/org-gnome-fileroller]
+application-id='org.gnome.FileRoller.desktop'
+
+[org/gnome/desktop/notifications/application/org-gnome-settings]
+application-id='org.gnome.Settings.desktop'
+
+[org/gnome/desktop/notifications/application/org-gnome-texteditor]
+application-id='org.gnome.TextEditor.desktop'
+
+[org/gnome/desktop/notifications/application/org-kde-kdenlive]
+application-id='org.kde.kdenlive.desktop'
+
+[org/gnome/desktop/notifications/application/postman]
+application-id='postman.desktop'
+
+[org/gnome/desktop/notifications/application/slack-slack]
+application-id='slack_slack.desktop'
+
+[org/gnome/desktop/notifications/application/thunderbird-thunderbird]
+application-id='thunderbird_thunderbird.desktop'
+
+[org/gnome/desktop/peripherals/touchpad]
+two-finger-scrolling-enabled=true
+
+[org/gnome/desktop/privacy]
+old-files-age=uint32 30
+recent-files-max-age=-1
+
+[org/gnome/desktop/screensaver]
+color-shading-type='solid'
+picture-options='zoom'
+picture-uri='file:///home/ardi/.local/share/backgrounds/2024-12-30-20-22-06-1354205.jpeg'
+primary-color='#000000000000'
+secondary-color='#000000000000'
+
+[org/gnome/desktop/session]
+idle-delay=uint32 300
+
+[org/gnome/desktop/wm/keybindings]
+maximize=@as []
+switch-applications=['<Super>Tab']
+switch-applications-backward=['<Shift><Super>Tab']
+switch-windows=@as []
+switch-windows-backward=@as []
+unmaximize=@as []
+
+[org/gnome/desktop/wm/preferences]
+num-workspaces=1
+workspace-names=@as []
+
+[org/gnome/evince/default]
+continuous=true
+dual-page=false
+dual-page-odd-left=false
+enable-spellchecking=true
+fullscreen=false
+inverted-colors=false
+show-sidebar=true
+sidebar-page='links'
+sidebar-size=148
+sizing-mode='automatic'
+window-ratio=(4.1046970215017566, 2.4974805363057246)
+
+[org/gnome/evolution-data-server]
+migrated=true
+
+[org/gnome/file-roller/listing]
+list-mode='as-folder'
+name-column-width=68
+show-path=false
+sort-method='name'
+sort-type='ascending'
+
+[org/gnome/file-roller/ui]
+sidebar-width=200
+window-height=480
+window-width=600
+
+[org/gnome/gnome-session]
+auto-save-session=true
+
+[org/gnome/gnome-system-monitor]
+cpu-colors=[(uint32 0, '#e01b24'), (1, '#ff7800'), (2, '#f6d32d'), (3, '#33d17a'), (4, '#26a269'), (5, '#62a0ea'), (6, '#1c71d8'), (7, '#613583'), (8, '#9141ac'), (9, '#c061cb'), (10, '#ffbe6f'), (11, '#f9f06b'), (12, '#8ff0a4'), (13, '#2ec27e'), (14, '#1a5fb4'), (15, '#c061cb'), (16, '#c0597999f332'), (17, '#7999f3329cde'), (18, '#f332799979cf'), (19, '#79999d4af332'), (20, '#c0c6f3327999'), (21, '#f3327999e441'), (22, '#7999f332dea7'), (23, '#f332bb2c7999'), (24, '#97b07999f332'), (25, '#7efcf3327999'), (26, '#f3327999a278'), (27, '#7999c5f3f332')]
+current-tab='disks'
+show-dependencies=false
+show-whose-processes='user'
+
+[org/gnome/gnome-system-monitor/disktreenew]
+col-6-visible=true
+col-6-width=290
+columns-order=[6]
+sort-col=1
+sort-order=0
+
+[org/gnome/mutter]
+dynamic-workspaces=true
+edge-tiling=false
+experimental-features=['x11-randr-fractional-scaling']
+overlay-key='Super_L'
+
+[org/gnome/mutter/keybindings]
+toggle-tiled-left=@as []
+toggle-tiled-right=@as []
+
+[org/gnome/nautilus/preferences]
+default-folder-viewer='icon-view'
+migrated-gtk-settings=true
+search-filter-time-type='last_modified'
+
+[org/gnome/nautilus/window-state]
+initial-size=(3718, 2033)
+maximized=false
+
+[org/gnome/portal/filechooser/gnome-background-panel]
+last-folder-path='/home/ardinugraha/Pictures'
+
+[org/gnome/portal/filechooser/google-chrome]
+last-folder-path='/home/ardinugraha/Videos'
+
+[org/gnome/portal/filechooser/org.gnome.Settings]
+last-folder-path='/home/ardi/Pictures'
+
+[org/gnome/rhythmbox]
+position=(1946, 1079)
+size=(1868, 981)
+
+[org/gnome/rhythmbox/plugins]
+active-plugins=['audioscrobbler', 'audiocd', 'android', 'dbus-media-server', 'mtpdevice', 'daap', 'power-manager', 'notification', 'ipod', 'generic-player', 'iradio', 'mpris', 'rb', 'alternative-toolbar', 'artsearch']
+seen-plugins=['audioscrobbler', 'grilo', 'pythonconsole', 'dbus-media-server', 'mtpdevice', 'daap', 'fmradio', 'notification', 'ipod', 'rb', 'alternative-toolbar', 'replaygain', 'magnatune', 'artsearch', 'webremote', 'lyrics', 'listenbrainz', 'im-status', 'rblirc']
+
+[org/gnome/rhythmbox/plugins/alternative_toolbar]
+show-source-toolbar=false
+
+[org/gnome/rhythmbox/plugins/audioscrobbler/Last.fm]
+scrobbling-enabled=true
+
+[org/gnome/rhythmbox/plugins/audioscrobbler/Libre.fm]
+scrobbling-enabled=true
+
+[org/gnome/rhythmbox/plugins/iradio]
+initial-stations-loaded=true
+
+[org/gnome/rhythmbox/rhythmdb]
+locations=['file:///home/ardinugraha/Music']
+
+[org/gnome/settings-daemon/plugins/color]
+night-light-enabled=false
+
+[org/gnome/settings-daemon/plugins/power]
+sleep-inactive-ac-timeout=3600
+sleep-inactive-ac-type='nothing'
+
+[org/gnome/shell]
+app-picker-layout=[{'software-properties-drivers.desktop': <{'position': <0>}>, 'snap-store_snap-store.desktop': <{'position': <1>}>, 'org.gnome.Weather.desktop': <{'position': <2>}>, 'org.gnome.clocks.desktop': <{'position': <3>}>, 'org.gnome.Calendar.desktop': <{'position': <4>}>, 'org.gnome.Snapshot.desktop': <{'position': <5>}>, 'firefox_firefox.desktop': <{'position': <6>}>, 'org.gnome.Totem.desktop': <{'position': <7>}>, 'org.gnome.Calculator.desktop': <{'position': <8>}>, 'firmware-updater_firmware-updater.desktop': <{'position': <9>}>, 'simple-scan.desktop': <{'position': <10>}>, 'org.gnome.Settings.desktop': <{'position': <11>}>, 'org.gnome.SystemMonitor.desktop': <{'position': <12>}>, 'org.gnome.eog.desktop': <{'position': <13>}>, 'org.gnome.Terminal.desktop': <{'position': <14>}>, 'Utilities': <{'position': <15>}>, 'display-im6.q16.desktop': <{'position': <16>}>, 'yelp.desktop': <{'position': <17>}>, 'gnome-language-selector.desktop': <{'position': <18>}>, 'libreoffice-calc.desktop': <{'position': <19>}>, 'libreoffice-draw.desktop': <{'position': <20>}>, 'libreoffice-impress.desktop': <{'position': <21>}>, 'libreoffice-math.desktop': <{'position': <22>}>}, {'nvidia-settings.desktop': <{'position': <0>}>, 'org.openrgb.OpenRGB.desktop': <{'position': <1>}>, 'org.gnome.PowerStats.desktop': <{'position': <2>}>, 'org.remmina.Remmina.desktop': <{'position': <3>}>, 'org.gnome.Rhythmbox3.desktop': <{'position': <4>}>, 'org.gnome.Shotwell.desktop': <{'position': <5>}>, 'software-properties-gtk.desktop': <{'position': <6>}>, 'update-manager.desktop': <{'position': <7>}>, 'gnome-session-properties.desktop': <{'position': <8>}>, 'usb-creator-gtk.desktop': <{'position': <9>}>, 'org.gnome.TextEditor.desktop': <{'position': <10>}>, 'transmission-gtk.desktop': <{'position': <11>}>, 'libreoffice-writer.desktop': <{'position': <12>}>, 'htop.desktop': <{'position': <13>}>, 'org.kde.kdenlive.desktop': <{'position': <14>}>}]
+disable-user-extensions=false
+disabled-extensions=['dock-from-dash@fthx', 'window-list@gnome-shell-extensions.gcampax.github.com', 'logomenu@aryan_k', 'fullscreen-to-empty-workspace@aiono.dev', 'hidetopbar@mathieu.bidon.ca', 'wsmatrix@martin.zurowietz.de', 'forge@jmmaranan.com', 'arcmenu@arcmenu.com', 'system-monitor@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'light-style@gnome-shell-extensions.gcampax.github.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com', 'ding@rastersoft.com', 'native-window-placement@gnome-shell-extensions.gcampax.github.com', 'launch-new-instance@gnome-shell-extensions.gcampax.github.com', 'auto-move-windows@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com']
+enabled-extensions=['user-theme@gnome-shell-extensions.gcampax.github.com', 'weatherornot@somepaulo.github.io', 'openbar@neuromorph', 'rezmon@azz.lol', 'monitor@astraext.github.io', 'Resource_Monitor@Ory0n', 'System_Monitor@bghome.gmail.com', 'Vitals@CoreCoding.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'mediacontrols@cliffniff.github.com', 'burn-my-windows@schneegans.github.com', 'blur-my-shell@aunetx', 'dash-to-dock@micxgx.gmail.com', 'logowidget@github.com.howbea', 'gsconnect@andyholmes.github.io', 'appmenu-is-back@fthx', 'tiling-assistant@ubuntu.com', 'tiling-assistant@leleat-on-github', 'gTile@vibou', 'space-bar@luchrioh', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'ubuntu-appindicators@ubuntu.com', 'ubuntu-dock@ubuntu.com', 'screenshot-window-sizer@gnome-shell-extensions.gcampax.github.com', 'unite@hardpixel.eu']
+favorite-apps=['thunderbird_thunderbird.desktop', 'google-chrome.desktop', 'org.gnome.Nautilus.desktop', 'libreoffice-startcenter.desktop', 'slack_slack.desktop', 'dbeaver-ce.desktop', 'postman.desktop', 'code.desktop', 'kitty.desktop', 'org.gnome.Extensions.desktop']
+last-selected-power-profile='performance'
+welcome-dialog-last-shown-version='46.0'
+
+[org/gnome/shell/extensions/Logo-menu]
+menu-button-icon-image=5
+menu-button-icon-size=21
+symbolic-icon=true
+use-custom-icon=false
+
+[org/gnome/shell/extensions/arcmenu]
+arc-menu-icon=64
+button-padding=-1
+dash-to-panel-standalone=true
+distro-icon=6
+menu-background-color='rgb(30,37,41)'
+menu-border-color='rgb(41,50,55)'
+menu-button-appearance='Icon'
+menu-button-icon='Menu_Icon'
+menu-button-position-offset=1
+menu-foreground-color='rgb(189,230,251)'
+menu-item-active-bg-color='rgba(189,230,251,0.15)'
+menu-item-active-fg-color='rgb(189,230,251)'
+menu-item-hover-bg-color='rgba(189,230,251,0.08)'
+menu-item-hover-fg-color='rgb(189,230,251)'
+menu-layout='Insider'
+menu-separator-color='rgba(99,99,98,0.56)'
+override-menu-theme=true
+prefs-visible-page=0
+recently-installed-apps=['htop.desktop', 'virtualbox.desktop']
+search-entry-border-radius=(true, 25)
+show-activities-button=false
+
+[org/gnome/shell/extensions/astra-monitor]
+explicit-zero=false
+gpu-indicators-order='["icon","activity bar","activity graph","activity percentage","memory bar","memory graph","memory percentage","memory value"]'
+headers-height=0
+headers-height-override=0
+memory-indicators-order='["icon","bar","graph","percentage","value","free"]'
+monitors-order='["processor","gpu","memory","storage","network","sensors"]'
+network-indicators-order='["icon","IO bar","IO graph","IO speed"]'
+processor-indicators-order='["icon","bar","graph","percentage","frequency"]'
+processor-menu-gpu-color=''
+profiles='{"default":{"panel-margin-left":0,"sensors-header-tooltip-sensor2-digits":-1,"memory-update":3,"gpu-header-memory-graph-color1":"rgba(29,172,214,1.0)","panel-box":"right","memory-header-show":true,"network-header-tooltip-io":true,"processor-header-bars-color2":"rgba(214,29,29,1.0)","processor-header-icon-size":18,"storage-source-storage-io":"auto","sensors-header-tooltip-sensor4-name":"","storage-header-icon-color":"","network-source-public-ipv4":"https://api.ipify.org","storage-header-io-graph-color2":"rgba(214,29,29,1.0)","storage-header-io":false,"processor-menu-top-processes-percentage-core":true,"sensors-header-sensor1":"\\"\\"","processor-header-graph":true,"storage-header-graph-width":30,"network-header-bars":false,"processor-source-load-avg":"auto","network-menu-arrow-color1":"rgba(29,172,214,1.0)","network-source-top-processes":"auto","gpu-header-icon":true,"processor-menu-graph-breakdown":true,"sensors-header-icon-custom":"","sensors-header-sensor2":"\\"\\"","network-header-icon-alert-color":"rgba(235, 64, 52, 1)","memory-header-tooltip-free":false,"storage-header-io-figures":2,"network-menu-arrow-color2":"rgba(214,29,29,1.0)","sensors-header-tooltip-sensor3-name":"","network-source-public-ipv6":"https://api6.ipify.org","monitors-order":"\\"\\"","network-header-graph":true,"network-indicators-order":"\\"\\"","memory-header-percentage":false,"processor-header-tooltip":true,"gpu-main":"\\"\\"","storage-header-bars":true,"sensors-header-tooltip-sensor5-digits":-1,"memory-menu-swap-color":"rgba(29,172,214,1.0)","storage-io-unit":"kB/s","processor-header-graph-color1":"rgba(29,172,214,1.0)","memory-header-graph-width":30,"storage-header-tooltip-value":false,"gpu-header-icon-custom":"","processor-header-graph-breakdown":true,"panel-margin-right":0,"processor-header-frequency":false,"processor-source-cpu-usage":"auto","sensors-header-tooltip-sensor3-digits":-1,"gpu-header-icon-size":18,"memory-header-value-figures":3,"compact-mode":false,"processor-header-frequency-mode":"average","panel-box-order":0,"compact-mode-compact-icon-custom":"","network-header-graph-width":30,"gpu-header-tooltip":true,"sensors-header-icon":true,"gpu-header-activity-percentage-icon-alert-threshold":0,"sensors-header-sensor2-digits":-1,"processor-header-graph-color2":"rgba(214,29,29,1.0)","sensors-header-icon-alert-color":"rgba(235, 64, 52, 1)","sensors-update":3,"gpu-header-tooltip-memory-value":true,"processor-header-bars":false,"gpu-header-tooltip-memory-percentage":true,"gpu-header-memory-bar-color1":"rgba(29,172,214,1.0)","sensors-header-tooltip-sensor1":"\\"\\"","sensors-header-tooltip-sensor1-digits":-1,"storage-header-free-figures":3,"processor-header-percentage-core":false,"sensors-header-tooltip-sensor2-name":"","network-source-network-io":"auto","memory-header-bars":true,"processor-header-percentage":false,"processor-header-frequency-figures":3,"storage-header-io-threshold":0,"memory-header-graph-color1":"rgba(29,172,214,1.0)","compact-mode-activation":"both","storage-header-icon-size":18,"sensors-header-tooltip-sensor1-name":"","sensors-header-icon-size":18,"sensors-header-icon-color":"","explicit-zero":false,"sensors-source":"auto","storage-header-io-graph-color1":"rgba(29,172,214,1.0)","storage-header-percentage-icon-alert-threshold":0,"sensors-header-tooltip-sensor2":"\\"\\"","compact-mode-expanded-icon-custom":"","memory-header-graph-color2":"rgba(29,172,214,0.3)","processor-header-icon-alert-color":"rgba(235, 64, 52, 1)","processor-header-tooltip-percentage":true,"gpu-header-show":false,"network-update":1.5,"sensors-header-tooltip-sensor3":"\\"\\"","sensors-ignored-attribute-regex":"","memory-header-icon-custom":"","storage-header-tooltip-io":true,"sensors-header-tooltip-sensor4":"\\"\\"","storage-header-percentage":false,"sensors-temperature-unit":"celsius","storage-header-icon-alert-color":"rgba(235, 64, 52, 1)","storage-header-free-icon-alert-threshold":0,"memory-source-top-processes":"auto","storage-header-value-figures":3,"storage-header-io-bars-color1":"rgba(29,172,214,1.0)","storage-menu-arrow-color1":"rgba(29,172,214,1.0)","gpu-header-tooltip-activity-percentage":true,"network-header-icon-custom":"","processor-header-graph-width":30,"network-header-icon":true,"storage-menu-arrow-color2":"rgba(214,29,29,1.0)","sensors-header-sensor2-layout":"vertical","sensors-header-tooltip-sensor5":"\\"\\"","memory-header-bars-breakdown":true,"sensors-header-show":true,"sensors-header-tooltip":false,"storage-header-tooltip":true,"processor-header-bars-core":false,"storage-indicators-order":"\\"\\"","processor-menu-bars-breakdown":true,"storage-header-io-bars-color2":"rgba(214,29,29,1.0)","network-io-unit":"kB/s","storage-header-icon":true,"gpu-header-activity-graph-color1":"rgba(29,172,214,1.0)","memory-unit":"kB-KB","processor-menu-core-bars-breakdown":true,"sensors-header-sensor2-show":false,"network-header-tooltip":true,"storage-header-tooltip-free":true,"storage-header-bars-color1":"rgba(29,172,214,1.0)","theme-style":"dark","storage-source-storage-usage":"auto","network-header-io":false,"storage-main":"[default]","memory-header-tooltip-percentage":true,"memory-indicators-order":"\\"\\"","memory-source-memory-usage":"auto","memory-header-graph-breakdown":false,"memory-header-tooltip-value":true,"memory-menu-graph-breakdown":true,"sensors-indicators-order":"\\"\\"","compact-mode-start-expanded":false,"startup-delay":2,"memory-header-percentage-icon-alert-threshold":0,"sensors-header-sensor1-show":false,"network-ignored-regex":"","storage-update":3,"memory-header-value":false,"memory-header-bars-color1":"rgba(29,172,214,1.0)","network-header-io-graph-color1":"rgba(29,172,214,1.0)","gpu-header-memory-bar":true,"memory-used":"total-free-buffers-cached","gpu-header-memory-graph-width":30,"gpu-header-memory-graph":false,"sensors-ignored-category-regex":"","headers-font-family":"","memory-header-icon":true,"network-header-io-graph-color2":"rgba(214,29,29,1.0)","memory-header-bars-color2":"rgba(29,172,214,0.3)","processor-gpu":true,"network-header-icon-color":"","storage-header-value":false,"gpu-header-icon-alert-color":"rgba(235, 64, 52, 1)","processor-header-icon":true,"headers-font-size":0,"network-header-io-figures":2,"network-header-show":true,"sensors-ignored-regex":"","network-header-io-bars-color1":"rgba(29,172,214,1.0)","processor-update":1.5,"network-source-wireless":"auto","processor-indicators-order":"\\"\\"","storage-header-icon-custom":"","gpu-header-activity-bar":true,"gpu-header-activity-bar-color1":"rgba(29,172,214,1.0)","shell-bar-position":"top","network-ignored":"\\"[]\\"","network-header-io-bars-color2":"rgba(214,29,29,1.0)","memory-header-icon-color":"","sensors-header-sensor1-digits":-1,"storage-header-io-layout":"vertical","memory-header-icon-size":18,"network-header-io-threshold":0,"storage-header-show":true,"sensors-header-tooltip-sensor4-digits":-1,"processor-header-percentage-icon-alert-threshold":0,"memory-header-tooltip":true,"headers-height-override":0,"memory-header-graph":false,"network-header-icon-size":18,"gpu-header-icon-color":"","memory-header-free-figures":3,"storage-header-io-bars":false,"processor-header-bars-breakdown":true,"gpu-header-activity-graph":false,"storage-ignored":"\\"[]\\"","memory-header-icon-alert-color":"rgba(235, 64, 52, 1)","storage-header-free":false,"processor-header-icon-custom":"","gpu-header-memory-percentage":false,"processor-header-tooltip-percentage-core":false,"processor-source-cpu-cores-usage":"auto","processor-source-top-processes":"auto","processor-header-icon-color":"","sensors-header-tooltip-sensor5-name":"","gpu-header-activity-graph-width":30,"gpu-header-activity-percentage":false,"gpu-indicators-order":"\\"\\"","network-header-io-layout":"vertical","gpu-update":1.5,"gpu-header-memory-percentage-icon-alert-threshold":0,"processor-header-bars-color1":"rgba(29,172,214,1.0)","processor-header-show":true,"storage-header-graph":false,"memory-header-free-icon-alert-threshold":0,"storage-ignored-regex":"","storage-menu-device-color":"rgba(29,172,214,1.0)","storage-header-tooltip-percentage":true,"memory-header-free":false,"storage-source-top-processes":"auto"}}'
+queued-pref-category='profiles'
+sensors-header-show=true
+sensors-indicators-order='["icon","value"]'
+storage-indicators-order='["icon","bar","percentage","value","free","IO bar","IO graph","IO speed"]'
+storage-main='XPG_GAMMIX_S70_BLADE_2O032L1CN6JP-part2'
+
+[org/gnome/shell/extensions/blur-my-shell]
+pipelines={'pipeline_default': {'name': <'Default'>, 'effects': <[<{'type': <'native_static_gaussian_blur'>, 'id': <'effect_000000000000'>, 'params': <{'radius': <30>, 'brightness': <0.59999999999999998>, 'unscaled_radius': <52>}>}>]>}, 'pipeline_default_rounded': {'name': <'Default rounded'>, 'effects': <[<{'type': <'native_static_gaussian_blur'>, 'id': <'effect_000000000001'>, 'params': <{'radius': <30>, 'brightness': <0.59999999999999998>}>}>, <{'type': <'corner'>, 'id': <'effect_000000000002'>, 'params': <{'radius': <24>}>}>]>}}
+settings-version=2
+
+[org/gnome/shell/extensions/blur-my-shell/appfolder]
+brightness=0.33000000000000002
+sigma=42
+
+[org/gnome/shell/extensions/blur-my-shell/applications]
+blur=true
+blur-on-overview=false
+brightness=0.56999999999999995
+dynamic-opacity=false
+enable-all=true
+opacity=215
+sigma=32
+whitelist=['kitty']
+
+[org/gnome/shell/extensions/blur-my-shell/coverflow-alt-tab]
+pipeline='pipeline_default'
+
+[org/gnome/shell/extensions/blur-my-shell/dash-to-dock]
+blur=true
+brightness=0.29999999999999999
+pipeline='pipeline_default_rounded'
+sigma=12
+static-blur=false
+style-dash-to-dock=0
+unblur-in-overview=false
+
+[org/gnome/shell/extensions/blur-my-shell/hidetopbar]
+compatibility=true
+
+[org/gnome/shell/extensions/blur-my-shell/lockscreen]
+pipeline='pipeline_default'
+
+[org/gnome/shell/extensions/blur-my-shell/overview]
+pipeline='pipeline_default'
+
+[org/gnome/shell/extensions/blur-my-shell/panel]
+brightness=0.59999999999999998
+force-light-text=false
+pipeline='pipeline_default'
+sigma=43
+static-blur=false
+
+[org/gnome/shell/extensions/blur-my-shell/screenshot]
+pipeline='pipeline_default'
+
+[org/gnome/shell/extensions/blur-my-shell/window-list]
+brightness=0.54000000000000004
+sigma=49
+
+[org/gnome/shell/extensions/burn-my-windows]
+active-profile='/home/ardinugraha/.config/burn-my-windows/profiles/1734355474956016.conf'
+last-extension-version=44
+prefs-open-count=1
+
+[org/gnome/shell/extensions/dash-to-dock]
+background-opacity=0.80000000000000004
+dash-max-icon-size=36
+dock-fixed=true
+dock-position='BOTTOM'
+extend-height=false
+height-fraction=0.83999999999999997
+preferred-monitor=-2
+preferred-monitor-by-connector='DP-4'
+show-mounts=false
+transparency-mode='FIXED'
+
+[org/gnome/shell/extensions/ding]
+start-corner='bottom-right'
+
+[org/gnome/shell/extensions/forge]
+css-last-update=uint32 37
+focus-border-toggle=false
+
+[org/gnome/shell/extensions/forge/keybindings]
+con-split-horizontal=['<Super>z']
+con-split-layout-toggle=['<Super>g']
+con-split-vertical=['<Super>v']
+con-stacked-layout-toggle=['<Shift><Super>s']
+con-tabbed-layout-toggle=['<Shift><Super>t']
+con-tabbed-showtab-decoration-toggle=['<Control><Alt>y']
+focus-border-toggle=['<Super>x']
+prefs-tiling-toggle=['<Super>w']
+window-focus-down=['<Super>j']
+window-focus-left=['<Super>h']
+window-focus-right=['<Super>l']
+window-focus-up=['<Super>k']
+window-gap-size-decrease=['<Control><Super>minus']
+window-gap-size-increase=['<Control><Super>plus']
+window-move-down=['<Shift><Super>j']
+window-move-left=['<Shift><Super>h']
+window-move-right=['<Shift><Super>l']
+window-move-up=['<Shift><Super>k']
+window-resize-bottom-decrease=['<Shift><Control><Super>i']
+window-resize-bottom-increase=['<Control><Super>u']
+window-resize-left-decrease=['<Shift><Control><Super>o']
+window-resize-left-increase=['<Control><Super>y']
+window-resize-right-decrease=['<Shift><Control><Super>y']
+window-resize-right-increase=['<Control><Super>o']
+window-resize-top-decrease=['<Shift><Control><Super>u']
+window-resize-top-increase=['<Control><Super>i']
+window-snap-center=['<Control><Alt>c']
+window-snap-one-third-left=['<Control><Alt>d']
+window-snap-one-third-right=['<Control><Alt>g']
+window-snap-two-third-left=['<Control><Alt>e']
+window-snap-two-third-right=['<Control><Alt>t']
+window-swap-down=['<Control><Super>j']
+window-swap-last-active=['<Super>Return']
+window-swap-left=['<Control><Super>h']
+window-swap-right=['<Control><Super>l']
+window-swap-up=['<Control><Super>k']
+window-toggle-always-float=['<Shift><Super>c']
+window-toggle-float=['<Super>c']
+workspace-active-tile-toggle=['<Shift><Super>w']
+
+[org/gnome/shell/extensions/gsconnect]
+enabled=true
+id='fa19580d-5383-45f8-9ce6-2a470629fd7a'
+name='penguin'
+
+[org/gnome/shell/extensions/gtile]
+follow-cursor=false
+show-grid-lines=false
+theme='Minimal Dark'
+
+[org/gnome/shell/extensions/mediacontrols]
+extension-position='Right'
+
+[org/gnome/shell/extensions/openbar]
+accent-color=['0.110', '0.443', '0.847']
+accent-override=true
+apply-menu-notif=true
+apply-menu-shell=true
+autotheme-font=false
+autotheme-refresh=true
+balpha=0.82999999999999996
+bartype='Mainland'
+bcolor=['0.102', '0.102', '0.102']
+bg-change=false
+bgalpha=1.0
+bgalpha2=0.47999999999999998
+bgcolor=['0.075', '0.090', '0.169']
+bgcolor-wmax=['0.125', '0.125', '0.125']
+bgcolor2=['0.075', '0.090', '0.169']
+bguri='file:///home/ardi/.local/share/backgrounds/2024-12-30-20-22-06-1354205.jpeg'
+border-wmax=false
+boxalpha=0.17000000000000001
+boxcolor=['0.384', '0.627', '0.918']
+bradius=6.0
+bwidth=2.2000000000000002
+color-scheme='prefer-dark'
+count1=318677
+count10=948
+count11=58
+count12=4
+count2=67941
+count3=66851
+count4=41141
+count5=40375
+count6=14490
+count7=6104
+count8=3967
+count9=1444
+dark-accent-color=['0.110', '0.443', '0.847']
+dark-bcolor=['0.102', '0.102', '0.102']
+dark-bgcolor=['0.075', '0.090', '0.169']
+dark-bgcolor2=['0.075', '0.090', '0.169']
+dark-bguri='file:///home/ardi/.local/share/backgrounds/2024-12-30-20-22-06-1354205.jpeg'
+dark-boxcolor=['0.384', '0.627', '0.918']
+dark-fgcolor=['1.000', '1.000', '1.000']
+dark-hscd-color=['0.384', '0.627', '0.918']
+dark-palette1=['33', '36', '67']
+dark-palette10=['86', '103', '131']
+dark-palette11=['168', '148', '86']
+dark-palette12=['156', '92', '146']
+dark-palette2=['76', '54', '91']
+dark-palette3=['115', '81', '126']
+dark-palette4=['176', '160', '182']
+dark-palette5=['134', '114', '173']
+dark-palette6=['83', '63', '120']
+dark-palette7=['5', '11', '24']
+dark-palette8=['137', '162', '198']
+dark-palette9=['54', '69', '103']
+default-font='Sans 12'
+fgcolor=['1.000', '1.000', '1.000']
+font='Noto Sans Brahmi 12'
+gradient=true
+gradient-direction='horizontal'
+halpha=0.34000000000000002
+hcolor=['0', '0.7', '0.9']
+heffect=false
+hpad=0.0
+hscd-color=['0.384', '0.627', '0.918']
+import-export=false
+isalpha=0.48999999999999999
+iscolor=['0.125', '0.125', '0.125']
+light-bguri='file:///home/ardi/.local/share/backgrounds/2024-12-30-20-22-06-1354205.jpeg'
+light-palette1=['33', '36', '67']
+light-palette10=['86', '103', '131']
+light-palette11=['168', '148', '86']
+light-palette12=['156', '92', '146']
+light-palette2=['76', '54', '91']
+light-palette3=['115', '81', '126']
+light-palette4=['176', '160', '182']
+light-palette5=['134', '114', '173']
+light-palette6=['83', '63', '120']
+light-palette7=['5', '11', '24']
+light-palette8=['137', '162', '198']
+light-palette9=['54', '69', '103']
+margin=1.2
+margin-wmax=5.2000000000000002
+mbcolor=['1.0', '1.0', '1.0']
+mbgcolor=['0.125', '0.125', '0.125']
+mfgcolor=['1.0', '1.0', '1.0']
+mhalpha=0.42999999999999999
+mhcolor=['0', '0.7', '0.9']
+monitor-height=2160
+monitor-width=3840
+mscolor=['0', '0.7', '0.75']
+mshcolor=['1.0', '1.0', '1.0']
+neon=true
+palette1=['33', '36', '67']
+palette10=['86', '103', '131']
+palette11=['168', '148', '86']
+palette12=['156', '92', '146']
+palette2=['76', '54', '91']
+palette3=['115', '81', '126']
+palette4=['176', '160', '182']
+palette5=['134', '114', '173']
+palette6=['83', '63', '120']
+palette7=['5', '11', '24']
+palette8=['137', '162', '198']
+palette9=['54', '69', '103']
+pause-reload=false
+radius-topleft=false
+reloadstyle=false
+sbar-gradient='to bottom'
+set-bottom-margin=false
+set-notif-position=true
+set-overview=false
+shadow=false
+shalpha=0.12
+shcolor=['0', '0', '0']
+smbgcolor=['0.125', '0.125', '0.125']
+trigger-reload=true
+vpad=3.5
+vw-color=['0', '0.7', '0.75']
+width-top=true
+winbcolor=['0', '0.7', '0.75']
+wmaxbar=false
+
+[org/gnome/shell/extensions/space-bar/appearance]
+application-styles='.space-bar {\n  -natural-hpadding: 12px;\n}\n\n.space-bar-workspace-label.active {\n  margin: 0 4px;\n  background-color: rgba(255,255,255,0.3);\n  color: rgba(255,255,255,1);\n  border-color: rgba(0,0,0,0);\n  font-weight: 700;\n  border-radius: 4px;\n  border-width: 0px;\n  padding: 3px 8px;\n}\n\n.space-bar-workspace-label.inactive {\n  margin: 0 4px;\n  background-color: rgba(0,0,0,0);\n  color: rgba(255,255,255,1);\n  border-color: rgba(0,0,0,0);\n  font-weight: 700;\n  border-radius: 4px;\n  border-width: 0px;\n  padding: 3px 8px;\n}\n\n.space-bar-workspace-label.inactive.empty {\n  margin: 0 4px;\n  background-color: rgba(0,0,0,0);\n  color: rgba(255,255,255,0.5);\n  border-color: rgba(0,0,0,0);\n  font-weight: 700;\n  border-radius: 4px;\n  border-width: 0px;\n  padding: 3px 8px;\n}'
+workspace-margin=4
+
+[org/gnome/shell/extensions/space-bar/behavior]
+always-show-numbers=true
+smart-workspace-names=false
+
+[org/gnome/shell/extensions/space-bar/state]
+version=32
+
+[org/gnome/shell/extensions/system-monitor]
+layout='vertical'
+position='right'
+refresh-interval=1
+show-cpu=true
+
+[org/gnome/shell/extensions/tiling-assistant]
+activate-layout0=@as []
+activate-layout1=@as []
+activate-layout2=@as []
+activate-layout3=@as []
+active-window-hint=1
+active-window-hint-color='rgb(211,70,21)'
+auto-tile=@as []
+center-window=@as []
+debugging-free-rects=@as []
+debugging-show-tiled-rects=@as []
+default-move-mode=0
+dynamic-keybinding-behavior=0
+enable-tiling-popup=true
+import-layout-examples=false
+last-version-installed=46
+overridden-settings={'org.gnome.mutter.edge-tiling': <@mb nothing>, 'org.gnome.desktop.wm.keybindings.maximize': <@mb nothing>, 'org.gnome.desktop.wm.keybindings.unmaximize': <@mb nothing>, 'org.gnome.mutter.keybindings.toggle-tiled-left': <@mb nothing>, 'org.gnome.mutter.keybindings.toggle-tiled-right': <@mb nothing>}
+restore-window=['<Super>Down']
+search-popup-layout=@as []
+tile-bottom-half=['<Super>KP_2']
+tile-bottom-half-ignore-ta=@as []
+tile-bottomleft-quarter=['<Super>KP_1']
+tile-bottomleft-quarter-ignore-ta=@as []
+tile-bottomright-quarter=['<Super>KP_3']
+tile-bottomright-quarter-ignore-ta=@as []
+tile-edit-mode=@as []
+tile-left-half=['<Super>Left', '<Super>KP_4']
+tile-left-half-ignore-ta=@as []
+tile-maximize=['<Super>Up', '<Super>KP_5']
+tile-maximize-horizontally=@as []
+tile-maximize-vertically=@as []
+tile-right-half=['<Super>Right', '<Super>KP_6']
+tile-right-half-ignore-ta=@as []
+tile-top-half=['<Super>KP_8']
+tile-top-half-ignore-ta=@as []
+tile-topleft-quarter=['<Super>KP_7']
+tile-topleft-quarter-ignore-ta=@as []
+tile-topright-quarter=['<Super>KP_9']
+tile-topright-quarter-ignore-ta=@as []
+tiling-popup-all-workspace=true
+toggle-always-on-top=@as []
+toggle-tiling-popup=@as []
+
+[org/gnome/shell/extensions/unite]
+hide-window-titlebars='always'
+restrict-to-primary-screen=false
+show-appmenu-button=false
+show-desktop-name=true
+show-window-buttons='never'
+show-window-title='never'
+window-buttons-theme='dracula'
+
+[org/gnome/shell/extensions/user-theme]
+name='Yaru-blue-dark'
+
+[org/gnome/shell/extensions/vitals]
+hide-icons=false
+hot-sensors=['_processor_usage_', '_temperature_processor_0_', '_storage_free_', '_system_uptime_', '_memory_allocated_']
+icon-style=0
+include-static-info=false
+menu-centered=false
+position-in-panel=2
+show-gpu=true
+show-processor=true
+update-time=1
+use-higher-precision=false
+
+[org/gnome/shell/extensions/weatherornot]
+position='left'
+
+[org/gnome/shell/weather]
+automatic-location=true
+locations=[<(uint32 2, <('Tangerang', 'WIII', true, [(-0.10675597839808398, 1.8613936472519526)], [(-0.10783178189572078, 1.8610775506711239)])>)>]
+
+[org/gnome/shell/world-clocks]
+locations=@av []
+
+[org/gnome/terminal/legacy]
+headerbar=@mb false
+
+[org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9]
+background-color='rgb(23,20,33)'
+foreground-color='rgb(208,207,204)'
+palette=['rgb(7,54,66)', 'rgb(220,50,47)', 'rgb(133,153,0)', 'rgb(181,137,0)', 'rgb(38,139,210)', 'rgb(211,54,130)', 'rgb(42,161,152)', 'rgb(238,232,213)', 'rgb(0,43,54)', 'rgb(203,75,22)', 'rgb(88,110,117)', 'rgb(101,123,131)', 'rgb(131,148,150)', 'rgb(108,113,196)', 'rgb(147,161,161)', 'rgb(253,246,227)']
+use-theme-colors=false
+
+[org/gtk/gtk4/settings/color-chooser]
+custom-colors=[(0.18823529779911041, 0.18823529779911041, 0.19215686619281769, 0.98000001907348633), (0.074509806931018829, 0.090196080505847931, 0.16862745583057404, 1.0), (0.46700000762939453, 0.46299999952316284, 0.48199999332427979, 1.0), (0.125, 0.125, 0.125, 1.0)]
+selected-color=(true, 1.0, 1.0, 1.0, 1.0)
+
+[org/gtk/gtk4/settings/file-chooser]
+date-format='regular'
+location-mode='path-bar'
+show-hidden=true
+sidebar-width=140
+sort-column='name'
+sort-directories-first=true
+sort-order='ascending'
+type-format='category'
+view-type='list'
+window-size=(1798, 2038)
+
+[org/gtk/settings/file-chooser]
+date-format='regular'
+location-mode='path-bar'
+show-hidden=false
+show-size-column=true
+show-type-column=true
+sidebar-width=168
+sort-column='name'
+sort-directories-first=false
+sort-order='descending'
+type-format='category'
+window-position=(26, 39)
+window-size=(1868, 2015)
