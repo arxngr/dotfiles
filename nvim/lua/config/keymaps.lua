@@ -42,3 +42,4 @@ keymap("n", "<C-d>", "mciw*<Cmd>nohl<CR>", { remap = true })
 
 keymap("n", "<leader>tt", ":ToggleTerm direction=float<CR>", { noremap = true, silent = true, desc = "Terminal" })
 keymap("t", "<ESC>", [[<C-\><C-n>]], { desc = "Escape Terminal Mode" })
+keymap("n", "q", "<Cmd>bd!<CR>", { desc = "Close Buffer", silent = true })
