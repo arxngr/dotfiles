@@ -59,11 +59,6 @@ config.hyperlink_rules = {
 }
 
 config.colors = {
-	pane = {
-		background = "#1e293b", -- Dark blue-gray background for the overlay
-		foreground = "#a5b4fc", -- Soft blue text color for pane labels
-		border = "#475569", -- Medium blue-gray border color
-	},
 	tab_bar = {
 		background = "#1e293b",
 
@@ -71,7 +66,6 @@ config.colors = {
 			bg_color = "#0f172a",
 			fg_color = "#a5b4fc",
 			italic = false,
-			bold = true,
 		},
 
 		-- Inactive tabs styling
