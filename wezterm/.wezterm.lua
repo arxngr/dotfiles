@@ -8,15 +8,14 @@ config.font = wezterm.font_with_fallback({
 	"Fira Code",
 	"Monospace",
 })
-config.font_size = 12.0
-config.color_scheme = "Dark+"
+config.font_size = 13
+config.color_scheme = "PencilDark"
+config.window_background_opacity = 0.85
 config.enable_tab_bar = true
 config.colors = {
 	selection_fg = "none",
 	selection_bg = "rgba(50% 50% 50% 50%)",
 }
-
-config.window_decorations = "TITLE"
 
 config.hyperlink_rules = {
 	{
@@ -58,6 +57,50 @@ config.hyperlink_rules = {
 		format = "mailto:$0",
 	},
 }
+
+config.colors = {
+	pane = {
+		background = "#1e293b", -- Dark blue-gray background for the overlay
+		foreground = "#a5b4fc", -- Soft blue text color for pane labels
+		border = "#475569", -- Medium blue-gray border color
+	},
+	tab_bar = {
+		background = "#1e293b",
+
+		active_tab = {
+			bg_color = "#0f172a",
+			fg_color = "#a5b4fc",
+			italic = false,
+			bold = true,
+		},
+
+		-- Inactive tabs styling
+		inactive_tab = {
+			bg_color = "#334155",
+			fg_color = "#94a3b8",
+		},
+
+		inactive_tab_hover = {
+			bg_color = "#475569",
+			fg_color = "#c7d2fe",
+			italic = true,
+		},
+
+		new_tab = {
+			bg_color = "#1e293b",
+			fg_color = "#94a3b8",
+		},
+		new_tab_hover = {
+			bg_color = "#475569",
+			fg_color = "#c7d2fe",
+		},
+	},
+}
+
+config.enable_tab_bar = true
+config.hide_tab_bar_if_only_one_tab = false
+config.use_fancy_tab_bar = true
+config.window_decorations = "RESIZE"
 
 table.insert(config.keys, {
 	key = "RightArrow",
