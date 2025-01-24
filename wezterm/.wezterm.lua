@@ -96,4 +96,11 @@ config.keys = {
 	},
 }
 
+-- Conditional Default Program
+if wezterm.target_triple:find("windows") then
+	config.default_prog = { "powershell.exe" }
+elseif wezterm.target_triple:find("darwin") or wezterm.target_triple:find("linux") then
+	config.default_prog = { "zsh" }
+end
+
 return config
