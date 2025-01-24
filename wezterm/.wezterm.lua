@@ -18,10 +18,6 @@ config.colors = {
 
 config.window_decorations = "TITLE"
 
-if wezterm.target_triple:find("linux") then
-	config.default_prog = { "zsh" }
-end
-
 config.hyperlink_rules = {
 	{
 		regex = "\\((\\w+://\\S+)\\)",
