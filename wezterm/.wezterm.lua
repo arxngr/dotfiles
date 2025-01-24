@@ -4,11 +4,11 @@ config.keys = {}
 
 -- **Basic Configuration**
 config.font = wezterm.font_with_fallback({
-	"JetBrains Mono",
+	"ComicShannsMono Nerd Font",
 	"Fira Code",
 	"Monospace",
 })
-config.font_size = 12.5
+config.font_size = 13
 config.color_scheme = "PencilDark"
 config.window_background_opacity = 0.85
 config.enable_tab_bar = true
