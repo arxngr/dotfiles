@@ -12,7 +12,7 @@ config.font = wezterm.font_with_fallback({
 })
 config.font_size = 13
 config.color_scheme = "PencilDark"
-config.window_background_opacity = 0.85
+config.window_background_opacity = 0.9
 config.tab_bar_at_bottom = true
 config.colors = {
 	selection_fg = "none",
