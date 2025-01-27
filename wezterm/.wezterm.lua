@@ -6,11 +6,11 @@ local config = {}
 bar.apply_to_config(config)
 -- **Basic Configuration**
 config.font = wezterm.font_with_fallback({
-	"ComicShannsMono Nerd Font",
+	"JetBrainsMono NF Medium",
 	"Fira Code",
 	"Monospace",
 })
-config.font_size = 13
+config.font_size = 12
 config.color_scheme = "PencilDark"
 config.window_background_opacity = 0.9
 config.tab_bar_at_bottom = true
