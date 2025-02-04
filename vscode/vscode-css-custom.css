@@ -36,11 +36,6 @@
     border-bottom: 1px #727b90 solid;
 }
 
-/* List item label name */
-.monaco-list.list_id_1 .monaco-list-row.selected .label-name {
-    color: #fff !important;
-    opacity: 1 !important;
-}
 
 /* File explorer action buttons */
 .monaco-workbench .part.sidebar .title-actions .actions-container {
@@ -50,12 +45,6 @@
 /* File Explorer Item Label */
 .monaco-tree .monaco-tree-row .label-name,
 .monaco-list .monaco-list-row
-.monaco-icon-label .label-name {
-    font-family: 'Geist Mono', monospace !important;
-    font-size: 14px !important;
-    font-weight: 400 !important;
-    color: #FFF !important;
-}
 
 /* Sidebar top shadow */
 .monaco-scrollable-element>.shadow.top {
@@ -121,13 +110,6 @@
     width: auto !important;
 }
 
-/* Search Label */
-.search-label {
-    font-family: 'Geist Mono' !important;
-    font-size: 14px !important;
-    color: #fff;
-    display: block;
-}
 
 /* Search icon */
 .search-icon {
