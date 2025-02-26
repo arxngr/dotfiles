@@ -9,19 +9,22 @@
 --
 --
 
-local oil = require("oil")
+local oil_available, _ = pcall(require, "oil")
+if oil_available then
+  local oil = require("oil")
 
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "dap-float",
-  callback = function()
-    vim.api.nvim_buf_set_keymap(0, "n", "q", "<cmd>close!<CR>", { noremap = true, silent = true })
-  end,
-})
+  vim.api.nvim_create_autocmd("FileType", {
+    pattern = "dap-float",
+    callback = function()
+      vim.api.nvim_buf_set_keymap(0, "n", "q", "<cmd>close!<CR>", { noremap = true, silent = true })
+    end,
+  })
 
-vim.api.nvim_create_user_command("OilToggle", function()
-  if vim.bo.filetype == "oil" then
-    vim.cmd("bd") -- Close the Oil buffer
-  else
-    oil.toggle_float() -- Open Oil in floating mode
-  end
-end, { nargs = 0 })
+  vim.api.nvim_create_user_command("OilToggle", function()
+    if vim.bo.filetype == "oil" then
+      vim.cmd("bd") -- Close the Oil buffer
+    else
+      oil.toggle_float() -- Open Oil in floating mode
+    end
+  end, { nargs = 0 })
+end

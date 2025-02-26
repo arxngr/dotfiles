@@ -2,7 +2,11 @@
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
 local keymap = vim.keymap.set
-keymap("n", "<leader>e", ":OilToggle<CR>", { noremap = true, silent = true, desc = "File Tree" })
+
+local oil_available, _ = pcall(require, "oil")
+if oil_available then
+  keymap("n", "<leader>e", ":OilToggle<CR>", { noremap = true, silent = true, desc = "File Tree" })
+end
 
 keymap("n", "d", '"_d', { noremap = true, silent = true })
 keymap("x", "d", '"_d', { noremap = true, silent = true })
