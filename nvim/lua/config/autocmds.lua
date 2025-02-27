@@ -31,6 +31,11 @@ end
 
 require("neo-tree").setup({
   filesystem = {
+    filtered_items = {
+      visible = true, -- Show hidden files
+      hide_dotfiles = false, -- Do not hide dotfiles (e.g., .git, .env)
+      hide_gitignored = false, -- Show gitignored files
+    },
     hijack_netrw_behavior = "open_current",
     window = {
       position = "float",
