@@ -28,3 +28,12 @@ if oil_available then
     end
   end, { nargs = 0 })
 end
+
+require("neo-tree").setup({
+  filesystem = {
+    hijack_netrw_behavior = "open_current",
+    window = {
+      position = "float",
+    },
+  },
+})
