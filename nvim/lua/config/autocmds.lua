@@ -29,16 +29,20 @@ if oil_available then
   end, { nargs = 0 })
 end
 
-require("neo-tree").setup({
-  filesystem = {
-    filtered_items = {
-      visible = true, -- Show hidden files
-      hide_dotfiles = false, -- Do not hide dotfiles (e.g., .git, .env)
-      hide_gitignored = false, -- Show gitignored files
+local neo_tree_available, _ = pcall(require, "neo-tree")
+if neo_tree_available then
+  local neotree = require("neo-tree")
+  neotree.setup({
+    filesystem = {
+      filtered_items = {
+        visible = true,
+        hide_dotfiles = false,
+        hide_gitignored = false,
+      },
+      hijack_netrw_behavior = "open_current",
+      window = {
+        position = "float",
+      },
     },
-    hijack_netrw_behavior = "open_current",
-    window = {
-      position = "float",
-    },
-  },
-})
+  })
+end
