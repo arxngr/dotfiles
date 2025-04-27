@@ -22,6 +22,7 @@ return {
       local opts = {
         bottom = {
           { title = "DAP Repl", ft = "dap-repl", size = { height = 15 } },
+          { title = "Terminal", ft = "toggleterm", size = { height = 15 } },
         },
         left = {
           { title = "DAP Scope", ft = "dapui_scopes", size = { width = 50 } },

@@ -6,7 +6,6 @@ return {
       dap = true,
       strategy = {
         "toggleterm",
-        direction = "float",
       },
     })
     require("overseer").enable_dap()
