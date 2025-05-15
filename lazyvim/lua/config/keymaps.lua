@@ -12,3 +12,5 @@ keymap("n", "<C-c>", '"+y', opts)
 keymap("v", "<C-c>", '"+y', opts)
 keymap("n", "<C-v>", '"+p', opts)
 keymap("v", "<C-v>", '"+p', opts)
+
+keymap('t', '<Esc>', [[<C-\><C-n>]], opts)
