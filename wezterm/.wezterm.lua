@@ -10,18 +10,26 @@ config.font = wezterm.font_with_fallback({
 	"Fira Code",
 	"Monospace",
 })
+
+config.window_decorations = "RESIZE"
 config.font_size = 12
 config.color_scheme = "PencilDark"
-config.window_background_opacity = 0.9
+config.window_background_opacity = 0.93
+config.macos_window_background_blur = 20
+config.kde_window_background_blur = true
+
+config.default_cursor_style = "SteadyBar"
+
 config.tab_bar_at_bottom = true
 config.colors = {
+	background = "#0f1013",
 	selection_fg = "none",
 	selection_bg = "rgba(50% 50% 50% 50%)",
 	tab_bar = {
-		background = "#1e293b",
+		background = "#0f1013",
 		active_tab = {
-			bg_color = "#0f172a",
-			fg_color = "#a5b4fc",
+			bg_color = "#10B1FE",
+			fg_color = "#0f1013",
 			italic = false,
 		},
 		inactive_tab = {
