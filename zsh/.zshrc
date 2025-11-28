@@ -54,25 +54,13 @@ export EDITOR="nvim"
 export GO111MODULE=on
 export PATH="$PATH:$(go env GOPATH)/bin"
 
-autoload -Uz vcs_info
-precmd() { vcs_info }
-autoload -Uz colors && colors
-setopt prompt_subst
-zstyle ':vcs_info:*' enable git
-zstyle ':vcs_info:git:*' formats '%F{yellow}[%b]%f'
-PROMPT='%F{cyan}%n%f %F{12}%~%f ${vcs_info_msg_0_}
-%F{magenta}❯%f '
-
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
-
 typeset -a ZSH_SHORTCUTS=(
   "works:$HOME/Documents/Works" # Replace this with your shortcut directory
   "workshops:$HOME/Documents/Workshops"
 )
 
 typeset -a ZSH_GIT_PROFILES=(
-  "BVT:$HOME/.github/bvt_token" # Replace this with your git token 
-  "DEFAULT:$HOME/.github/default_token"
+  "DEFAULT:$HOME/.github/personal_token"
 )
 
 for entry in "${ZSH_SHORTCUTS[@]}"; do
@@ -92,7 +80,10 @@ cd() {
     for entry in "${ZSH_SHORTCUTS[@]}"; do
         local key="${entry%%:*}"
         local path="${entry#*:}"
-        if [[ "$1" =~ ^([${key^}${key}])$ ]]; then
+        local key_lower="${key:l}"
+        local key_upper="${key:u}"
+
+        if [[ "$1" == "$key_lower" || "$1" == "$key_upper" ]]; then
             builtin cd "$path"
             return
         fi
@@ -102,8 +93,8 @@ cd() {
 
 for entry in "${ZSH_SHORTCUTS[@]}"; do
     key="${entry%%:*}"
-    alias "$key"="cd $key"
-    alias "${key^}"="cd $key"
+    alias "${key:l}"="cd $key"
+    alias "${key:u}"="cd $key"
 done
 
 load_dotenv() {
@@ -143,8 +134,6 @@ load_github_token() {
             return
         fi
     done
-    
-    # This is for default token that mean your personal token
     for profile in "${ZSH_GIT_PROFILES[@]}"; do
         if [[ "${profile%%:*}" == "DEFAULT" ]] && [[ -f "${profile#*:}" ]]; then
             local tok=$(tr -d '[:space:]' < "${profile#*:}")
@@ -161,5 +150,35 @@ chpwd() {
 
 autoload -Uz add-zsh-hook
 add-zsh-hook chpwd chpwd
-
 chpwd
+
+autoload -Uz vcs_info
+autoload -Uz colors && colors
+setopt prompt_subst
+
+zstyle ':vcs_info:git:*' formats "%F{yellow}[%b]%f"
+
+git_changes() {
+  local ua ur sa sr
+  ua=$(git diff --numstat 2>/dev/null | awk '{a+=$1} END {print a+0}')
+  ur=$(git diff --numstat 2>/dev/null | awk '{r+=$2} END {print r+0}')
+  sa=$(git diff --cached --numstat 2>/dev/null | awk '{a+=$1} END {print a+0}')
+  sr=$(git diff --cached --numstat 2>/dev/null | awk '{r+=$2} END {print r+0}')
+
+  local msg=""
+
+  (( sa > 0 )) && msg+="%F{green}+${sa}%f "
+  (( sr > 0 )) && msg+="%F{green}-${sr}%f "
+  (( ua > 0 )) && msg+="%F{blue}+${ua}%f "
+  (( ur > 0 )) && msg+="%F{red}-${ur}%f "
+
+  [[ -n $msg ]] && echo "[${msg% }]"
+}
+
+precmd() {
+  vcs_info
+  GIT_CHANGES=$(git_changes)
+}
+
+PROMPT='%F{cyan}%n%f %F{12}%~%f ${vcs_info_msg_0_} ${GIT_CHANGES}
+%F{magenta}❯%f '
