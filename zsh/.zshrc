@@ -77,24 +77,26 @@ done
 [[ -f "$HOME/.zsh_user_config" ]] && source "$HOME/.zsh_user_config"
 
 cd() {
-    for entry in "${ZSH_SHORTCUTS[@]}"; do
-        local key="${entry%%:*}"
-        local path="${entry#*:}"
-        local key_lower="${key:l}"
-        local key_upper="${key:u}"
+    if [[ $# -eq 1 ]]; then
+        for entry in "${ZSH_SHORTCUTS[@]}"; do
+            local shortcut_key="${entry%%:*}"
+            local shortcut_path="${entry#*:}"
+            local key_lower="${shortcut_key:l}"
+            local key_upper="${shortcut_key:u}"
 
-        if [[ "$1" == "$key_lower" || "$1" == "$key_upper" ]]; then
-            builtin cd "$path"
-            return
-        fi
-    done
+            if [[ "$1" == "$key_lower" || "$1" == "$key_upper" ]]; then
+                builtin cd "$shortcut_path"
+                return
+            fi
+        done
+    fi
     builtin cd "$@"
 }
 
 for entry in "${ZSH_SHORTCUTS[@]}"; do
-    key="${entry%%:*}"
-    alias "${key:l}"="cd $key"
-    alias "${key:u}"="cd $key"
+    local alias_key="${entry%%:*}"
+    alias "${alias_key:l}"="cd $alias_key"
+    alias "${alias_key:u}"="cd $alias_key"
 done
 
 load_dotenv() {
