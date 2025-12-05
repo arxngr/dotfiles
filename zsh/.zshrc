@@ -53,6 +53,7 @@ export PATH="$PATH:/opt/nvim-linux-x86_64/bin:$HOME/.local/bin:$HOME/.cargo/bin"
 export EDITOR="nvim"
 export GO111MODULE=on
 export PATH="$PATH:$(go env GOPATH)/bin"
+export PATH=/usr/local/bin:$PATH
 
 typeset -a ZSH_SHORTCUTS=(
   "works:$HOME/Documents/Works" # Replace this with your shortcut directory
