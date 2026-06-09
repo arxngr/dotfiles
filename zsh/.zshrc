@@ -158,6 +158,7 @@ load_github_token() {
     # 2. Fallback to DEFAULT if no specific folder matched
     for profile in "${ZSH_GIT_PROFILES[@]}"; do
         if [[ "${profile%%:*}" == "DEFAULT" ]] && [[ -f "${profile#*:}" ]]; then
+            # Read the raw token from the file
             local tok=$(tr -d '[:space:]' < "${profile#*:}")
             configure_git_auth "Ardi Nugraha" "0x4rd1@gmail.com" "$tok"
             return
