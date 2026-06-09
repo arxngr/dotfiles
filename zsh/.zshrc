@@ -61,6 +61,7 @@ typeset -a ZSH_SHORTCUTS=(
 )
 
 typeset -a ZSH_GIT_PROFILES=(
+  "Works/BVT:$HOME/.github/bvt_token"
   "DEFAULT:$HOME/.github/personal_token"
 )
 
@@ -112,15 +113,20 @@ configure_git_auth() {
     local name="$1"
     local email="$2"
     local token="$3"
+    
     if [[ -n "$token" ]]; then
+        # Use global helper but project-specific user configurations
         git config --global credential.helper store
-        git config --global user.name "$name"
-        git config --global user.email "$email"
-        echo "https://${token}@github.com" > "$HOME/.git-credentials"
+        git config --local user.name "$name"
+        git config --local user.email "$email"
+        
+        # arxngr is passed explicitly here to satisfy the HTTPS remote request
+        echo "https://arxngr:${token}@github.com" > "$HOME/.git-credentials"
         chmod 600 "$HOME/.git-credentials"
         export GITHUB_TOKEN="$token"
     else
-        git config --global --unset credential.helper 2>/dev/null || true
+        git config --local --unset user.name 2>/dev/null || true
+        git config --local --unset user.email 2>/dev/null || true
         rm -f "$HOME/.git-credentials"
         unset GITHUB_TOKEN
     fi
@@ -128,19 +134,32 @@ configure_git_auth() {
 
 load_github_token() {
     local current="$PWD"
+    
+    # Check if inside a Git repository before wasting cycles
+    if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        return
+    fi
+    
+    # 1. Check for specific matches first (BVT, etc.)
     for profile in "${ZSH_GIT_PROFILES[@]}"; do
-        local name="${profile%%:*}"
+        local match_path="${profile%%:*}"
         local file="${profile#*:}"
-        if [[ "$current" == *"/${name}"* ]] && [[ -f "$file" ]]; then
-            source "$file"
-            configure_git_auth "$GIT_CONFIG_NAME" "$GIT_CONFIG_EMAIL" "$GITHUB_TOKEN"
+        
+        [[ "$match_path" == "DEFAULT" ]] && continue
+        
+        if [[ "$current" == *"$match_path"* ]] && [[ -f "$file" ]]; then
+            local tok=$(tr -d '[:space:]' < "$file")
+            # Set your WORK specific Git Identity here
+            configure_git_auth "Ardi Nugraha" "0x4rd1@gmail.com" "$tok"
             return
         fi
     done
+
+    # 2. Fallback to DEFAULT if no specific folder matched
     for profile in "${ZSH_GIT_PROFILES[@]}"; do
         if [[ "${profile%%:*}" == "DEFAULT" ]] && [[ -f "${profile#*:}" ]]; then
             local tok=$(tr -d '[:space:]' < "${profile#*:}")
-            configure_git_auth "User" "user@example.com" "$tok"
+            configure_git_auth "Ardi Nugraha" "0x4rd1@gmail.com" "$tok"
             return
         fi
     done
@@ -185,3 +204,10 @@ precmd() {
 
 PROMPT='%F{cyan}%n%f %F{12}%~%f ${vcs_info_msg_0_} ${GIT_CHANGES}
 %F{magenta}❯%f '
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# opencode
+export PATH=/home/ardinugraha/.opencode/bin:$PATH
