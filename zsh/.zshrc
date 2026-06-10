@@ -1,4 +1,4 @@
-ZSH_PLUGIN_DIR="$HOME/.zsh-plugins"
+ZSH_PLUGIN_DIR="$HOME/.oh-my-zsh/custom/plugins"
 mkdir -p "$ZSH_PLUGIN_DIR"
 
 install_plugin() {
@@ -19,6 +19,7 @@ source "$ZSH_PLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
 fpath=("$ZSH_PLUGIN_DIR/zsh-completions/src" $fpath)
 
 setopt histignorealldups sharehistory auto_cd interactivecomments
+
 bindkey -e
 HISTSIZE=5000
 SAVEHIST=5000
@@ -54,6 +55,7 @@ export EDITOR="nvim"
 export GO111MODULE=on
 export PATH="$PATH:$(go env GOPATH)/bin"
 export PATH=/usr/local/bin:$PATH
+export KITTY_LISTEN_ON="unix:@kitty-${KITTY_PID}.sock"
 
 typeset -a ZSH_SHORTCUTS=(
   "works:$HOME/Documents/Works" # Replace this with your shortcut directory
@@ -83,12 +85,10 @@ cd() {
         for entry in "${ZSH_SHORTCUTS[@]}"; do
             local shortcut_key="${entry%%:*}"
             local shortcut_path="${entry#*:}"
-            local key_lower="${shortcut_key:l}"
-            local key_upper="${shortcut_key:u}"
-
-            if [[ "$1" == "$key_lower" || "$1" == "$key_upper" ]]; then
+            
+            if [[ "${1:l}" == "${shortcut_key:l}" ]]; then
                 builtin cd "$shortcut_path"
-                return
+                return $?
             fi
         done
     fi
@@ -212,3 +212,4 @@ export NVM_DIR="$HOME/.nvm"
 
 # opencode
 export PATH=/home/ardinugraha/.opencode/bin:$PATH
+alias kitty='kitty-session'
