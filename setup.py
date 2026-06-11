@@ -249,39 +249,39 @@ def install_dev_deps():
     dep_map = {
         "brew": {
             "cmake": "cmake", "go": "go", "clang": "llvm",
-            "gcc": "gcc", "python3": "python@3", "node": "node",
+            "gcc": "gcc", "python3": "python@3", "node": "node","cargo": "cargo"
         },
         "apt-get": {
             "cmake": "cmake", "go": "golang-go", "clang": "clang",
-            "clangd": "clangd", "gcc": "gcc", "python3": "python3",
-            "node": "nodejs", "npm": "npm",
+            "clangd": "clangd", "gcc": "gcc", "python3": "python3, python3",
+            "node": "nodejs", "npm": "npm", "cargo": "cargo"
         },
         "apt": {
             "cmake": "cmake", "go": "golang-go", "clang": "clang",
             "clangd": "clangd", "gcc": "gcc", "python3": "python3",
-            "node": "nodejs", "npm": "npm",
+            "node": "nodejs", "npm": "npm","cargo": "cargo"
         },
         "dnf": {
             "cmake": "cmake", "go": "golang", "clang": "clang",
             "clangd": "clang-tools-extra", "gcc": "gcc", "python3": "python3",
-            "node": "nodejs", "npm": "npm",
+            "node": "nodejs", "npm": "npm","cargo": "cargo"
         },
         "pacman": {
             "cmake": "cmake", "go": "go", "clang": "clang",
             "clangd": "clang", "gcc": "gcc", "python3": "python",
-            "node": "nodejs", "npm": "npm",
+            "node": "nodejs", "npm": "npm","cargo": "cargo"
         },
         "zypper": {
             "cmake": "cmake", "go": "go", "clang": "clang",
             "clangd": "clang", "gcc": "gcc", "python3": "python3",
-            "node": "nodejs", "npm": "npm",
+            "node": "nodejs", "npm": "npm","cargo": "cargo"
         },
     }
 
     tools    = dep_map.get(pm, {})
     checks   = {
         "cmake": "cmake", "go": "go", "clang": "clang", "clangd": "clangd",
-        "gcc": "gcc", "python3": "python3", "node": "node", "npm": "npm",
+        "gcc": "gcc", "python3": "python3", "node": "node", "npm": "npm","cargo": "cargo"
     }
     to_install = []
     for label, binary in checks.items():
