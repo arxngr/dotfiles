@@ -46,6 +46,7 @@ CYAN   = "\033[36m"
 RESET  = "\033[0m"
 
 DRY_RUN = False
+UPDATE  = False
 OS      = platform.system()  # "Linux" | "Darwin" | "Windows"
 
 
@@ -506,20 +507,26 @@ def _patch_kitty_conf(conf_path: Path):
     if DRY_RUN or not conf_path.exists():
         return
     content = conf_path.read_text()
-    additions = []
+    changed = False
+
+    correct_listen = "listen_on unix:/tmp/kitty-{kitty_pid}.sock"
     if "listen_on" not in content:
-        additions.append("listen_on unix:/tmp/kitty-{kitty_pid}.sock")
+        content += f"\n# === Session auto-save (added by installer) ===\n{correct_listen}\n"
+        changed = True
+    elif UPDATE and correct_listen not in content:
+        import re
+        content = re.sub(r"listen_on\s+\S+", correct_listen, content)
+        changed = True
+
     if "allow_remote_control" not in content:
-        additions.append("allow_remote_control socket-only")
+        content += "allow_remote_control socket-only\n"
+        changed = True
     elif "allow_remote_control yes" in content:
         content = content.replace("allow_remote_control yes", "allow_remote_control socket-only")
+        changed = True
+
+    if changed:
         conf_path.write_text(content)
-        ok("Patched allow_remote_control in kitty.conf")
-    if additions:
-        with conf_path.open("a") as f:
-            f.write("\n# === Session auto-save (added by installer) ===\n")
-            for line in additions:
-                f.write(line + "\n")
         ok("Patched kitty.conf with session directives")
     else:
         skip("kitty.conf session directives already present")
@@ -592,9 +599,11 @@ def _setup_systemd_kitty_timer(kitty_dir: Path, session_dir: Path):
     sd  = Path.home() / ".config/systemd/user"
     svc = sd / "kitty-session-save.service"
     tmr = sd / "kitty-session-save.timer"
-    if svc.exists() and tmr.exists():
+    if svc.exists() and tmr.exists() and not UPDATE:
         skip("systemd kitty-session timer")
         return
+    if (svc.exists() or tmr.exists()) and UPDATE:
+        run(["systemctl", "--user", "disable", "--now", "kitty-session-save.timer"], check=False)
     ensure_dir(sd)
     if not DRY_RUN:
         svc.write_text(
@@ -618,9 +627,11 @@ def _setup_systemd_kitty_timer(kitty_dir: Path, session_dir: Path):
 def _setup_launchd_kitty_timer(kitty_dir: Path, session_dir: Path):
     plist_dir = Path.home() / "Library/LaunchAgents"
     plist     = plist_dir / "com.kitty.session-save.plist"
-    if plist.exists():
+    if plist.exists() and not UPDATE:
         skip("launchd kitty-session agent")
         return
+    if plist.exists() and UPDATE:
+        run(["launchctl", "unload", str(plist)], check=False)
     ensure_dir(plist_dir)
     if not DRY_RUN:
         plist.write_text(
@@ -911,19 +922,24 @@ def set_kitty_as_default():
     ok("GNOME desktop preferences refreshed successfully.")
 
 def main():
-    global DRY_RUN
+    global DRY_RUN, UPDATE
 
     parser = argparse.ArgumentParser(description="Ardi Nugraha dotfiles installer")
     parser.add_argument("--dry-run", action="store_true",
                         help="Show what would be done without making changes")
     parser.add_argument("--skip", nargs="*", default=[], metavar="STEP",
                         help="Steps to skip: deps font zsh nvim kitty gridflux dirs")
+    parser.add_argument("--update", nargs="*", default=None, metavar="STEP",
+                        help="Force re-apply configs even if already present (all steps if no args, or e.g. kitty zsh)")
     args     = parser.parse_args()
     DRY_RUN  = args.dry_run
     skip_set = set(args.skip or [])
 
     if DRY_RUN:
         print(f"{YELLOW}{BOLD}=== DRY RUN — nothing will be changed ==={RESET}\n")
+    if args.update is not None:
+        scope = ", ".join(args.update) if args.update else "all steps"
+        print(f"{YELLOW}{BOLD}=== UPDATE MODE — re-applying configs: {scope} ==={RESET}\n")
 
     print(f"{BOLD}{CYAN}")
     print("  ██████╗  ██████╗ ████████╗███████╗██╗██╗     ███████╗███████╗")
@@ -952,6 +968,7 @@ def main():
         if key in skip_set:
             warn(f"Skipping {label} (--skip {key})")
             continue
+        UPDATE = args.update is not None and (not args.update or key in args.update)
         print()
         try:
             fn()
