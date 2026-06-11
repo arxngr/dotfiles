@@ -129,36 +129,42 @@ def clone_or_skip(url, dest: Path, name=""):
     return True
 
 def copy_local(src_relative: str, dest: Path, required=True):
-    """Copy a file from the local dotfiles directory to dest."""
     src = (DOTFILES_DIR / src_relative).resolve()
-    dest_resolved = dest.resolve() if dest.exists() else dest
     label = dest.name
     
     if DRY_RUN:
-        print(f"  [dry-run] Copy {src} → {dest}")
-        return
-    if not src.exists():
-        if required:
-            warn(f"{label}: source not found at {src}")
-        else:
-            warn(f"{label} not found in dotfiles, skipping")
+        print(f"  [dry-run] Link {src} → {dest}")
         return
         
-    if src == dest_resolved:
-        skip(f"{label} (source and destination paths are identical)")
+    if not src.exists():
+        if required:
+            warn(f"{label}: source target not found at {src}")
+        else:
+            warn(f"{label} not found in dotfiles, skipping link")
+        return
+        
+    if dest.is_symlink() and dest.readlink() == src:
+        skip(f"{label} (correct symbolic link already managed)")
         return
 
-    if dest.exists():
+    if dest.exists() or dest.is_symlink():
         backup = dest.with_suffix(dest.suffix + ".bak")
         try:
-            shutil.copy(dest, backup)
-            warn(f"Backed up existing {label} to {backup.name}")
-        except shutil.SameFileError:
-            pass
+            if dest.is_dir() and not dest.is_symlink():
+                shutil.move(dest, backup)
+            else:
+                os.remove(dest) if dest.is_symlink() else shutil.move(dest, backup)
+            warn(f"Moved existing {label} out of the way to {backup.name}")
+        except Exception as e:
+            err(f"Could not handle existing path structural block for {label}: {e}")
+            return
             
     ensure_dir(dest.parent)
-    shutil.copy(src, dest)
-    ok(f"{label} installed from dotfiles")
+    try:
+        os.symlink(src, dest)
+        ok(f"Linked config workspace: {label} → {src.name}")
+    except OSError as e:
+        err(f"Failed to symlink {label}: {e}")
 
 def detect_pkg_manager():
     for pm in ("brew", "apt-get", "apt", "dnf", "pacman", "zypper"):

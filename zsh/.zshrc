@@ -1,3 +1,25 @@
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+if [[ "$(uname)" == "Darwin" ]]; then
+    if [[ -d "/opt/homebrew/bin" ]]; then
+        export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+    fi
+fi
+
+if [[ "$(uname)" == "Linux" ]]; then
+    [[ -d "/opt/nvim-linux-x86_64/bin" ]] && export PATH="/opt/nvim-linux-x86_64/bin:$PATH"
+    [[ -d "/home/ardinugraha/.opencode/bin" ]] && export PATH="/home/ardinugraha/.opencode/bin:$PATH"
+fi
+
+export PATH="$PATH:$HOME/.local/bin:$HOME/.cargo/bin"
+
+export EDITOR="nvim"
+export GO111MODULE=on
+
+if command -v go &>/dev/null; then
+    export PATH="$PATH:$(go env GOPATH)/bin"
+fi
+
 ZSH_PLUGIN_DIR="$HOME/.oh-my-zsh/custom/plugins"
 mkdir -p "$ZSH_PLUGIN_DIR"
 
@@ -19,7 +41,6 @@ source "$ZSH_PLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
 fpath=("$ZSH_PLUGIN_DIR/zsh-completions/src" $fpath)
 
 setopt histignorealldups sharehistory auto_cd interactivecomments
-
 bindkey -e
 HISTSIZE=5000
 SAVEHIST=5000
@@ -50,15 +71,10 @@ accept-or-history-up() {
 zle -N accept-or-history-up
 bindkey '^[[A' accept-or-history-up
 
-export PATH="$PATH:/opt/nvim-linux-x86_64/bin:$HOME/.local/bin:$HOME/.cargo/bin"
-export EDITOR="nvim"
-export GO111MODULE=on
-export PATH="$PATH:$(go env GOPATH)/bin"
-export PATH=/usr/local/bin:$PATH
 export KITTY_LISTEN_ON="unix:@kitty-${KITTY_PID}.sock"
 
 typeset -a ZSH_SHORTCUTS=(
-  "works:$HOME/Documents/Works" # Replace this with your shortcut directory
+  "works:$HOME/Documents/Works" 
   "workshops:$HOME/Documents/Workshops"
 )
 
@@ -115,12 +131,9 @@ configure_git_auth() {
     local token="$3"
     
     if [[ -n "$token" ]]; then
-        # Use global helper but project-specific user configurations
         git config --global credential.helper store
         git config --local user.name "$name"
         git config --local user.email "$email"
-        
-        # arxngr is passed explicitly here to satisfy the HTTPS remote request
         echo "https://arxngr:${token}@github.com" > "$HOME/.git-credentials"
         chmod 600 "$HOME/.git-credentials"
         export GITHUB_TOKEN="$token"
@@ -134,31 +147,24 @@ configure_git_auth() {
 
 load_github_token() {
     local current="$PWD"
-    
-    # Check if inside a Git repository before wasting cycles
     if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
         return
     fi
     
-    # 1. Check for specific matches first (BVT, etc.)
     for profile in "${ZSH_GIT_PROFILES[@]}"; do
         local match_path="${profile%%:*}"
         local file="${profile#*:}"
-        
         [[ "$match_path" == "DEFAULT" ]] && continue
         
         if [[ "$current" == *"$match_path"* ]] && [[ -f "$file" ]]; then
             local tok=$(tr -d '[:space:]' < "$file")
-            # Set your WORK specific Git Identity here
             configure_git_auth "Ardi Nugraha" "0x4rd1@gmail.com" "$tok"
             return
         fi
     done
 
-    # 2. Fallback to DEFAULT if no specific folder matched
     for profile in "${ZSH_GIT_PROFILES[@]}"; do
         if [[ "${profile%%:*}" == "DEFAULT" ]] && [[ -f "${profile#*:}" ]]; then
-            # Read the raw token from the file
             local tok=$(tr -d '[:space:]' < "${profile#*:}")
             configure_git_auth "Ardi Nugraha" "0x4rd1@gmail.com" "$tok"
             return
@@ -189,7 +195,6 @@ git_changes() {
   sr=$(git diff --cached --numstat 2>/dev/null | awk '{r+=$2} END {print r+0}')
 
   local msg=""
-
   (( sa > 0 )) && msg+="%F{green}+${sa}%f "
   (( sr > 0 )) && msg+="%F{green}-${sr}%f "
   (( ua > 0 )) && msg+="%F{blue}+${ua}%f "
@@ -207,9 +212,7 @@ PROMPT='%F{cyan}%n%f %F{12}%~%f ${vcs_info_msg_0_} ${GIT_CHANGES}
 %F{magenta}❯%f '
 
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-# opencode
-export PATH=/home/ardinugraha/.opencode/bin:$PATH
 alias kitty='kitty-session'
