@@ -8,6 +8,7 @@ Usage:
     python3 install.py            # full install
     python3 install.py --dry-run  # preview without changes
     python3 install.py --skip font zsh
+    python3 install.py --update kitty zsh
 """
 
 import argparse
@@ -66,48 +67,39 @@ def err(msg):
     print(f"  {RED}✗{RESET} {msg}", file=sys.stderr)
 
 def download_with_progress(url, dest_path: Path, description="Downloading"):
-    """Downloads a file and displays a terminal loading bar."""
     req = urllib.request.Request(url, headers={"User-Agent": "dotfiles-installer"})
-    try:
-        with urllib.request.urlopen(req) as response:
-            total_size = int(response.info().get('Content-Length', 0))
-            block_size = 8192
-            downloaded = 0
-            
-            with open(dest_path, 'wb') as f:
-                while True:
-                    buffer = response.read(block_size)
-                    if not buffer:
-                        break
-                    downloaded += len(buffer)
-                    f.write(buffer)
-                    
-                    if total_size > 0:
-                        percent = int(downloaded * 100 / total_size)
-                        bar_length = 30
-                        filled_length = int(bar_length * downloaded // total_size)
-                        bar = '█' * filled_length + '░' * (bar_length - filled_length)
-                        sys.stdout.write(f"\r  {CYAN}{description}{RESET} [{bar}] {percent}%")
-                        sys.stdout.flush()
-                    else:
-                        sys.stdout.write(f"\r  {CYAN}{description}{RESET} {downloaded // 1024} KB downloaded...")
-                        sys.stdout.flush()
-            print()  # New line after completion
-    except Exception as e:
-        print()
-        raise e
+    with urllib.request.urlopen(req) as response:
+        total_size = int(response.info().get("Content-Length", 0))
+        block_size = 8192
+        downloaded = 0
+        with open(dest_path, "wb") as f:
+            while True:
+                buffer = response.read(block_size)
+                if not buffer:
+                    break
+                downloaded += len(buffer)
+                f.write(buffer)
+                if total_size > 0:
+                    percent = int(downloaded * 100 / total_size)
+                    bar_len = 30
+                    filled  = int(bar_len * downloaded // total_size)
+                    bar     = "█" * filled + "░" * (bar_len - filled)
+                    sys.stdout.write(f"\r  {CYAN}{description}{RESET} [{bar}] {percent}%")
+                else:
+                    sys.stdout.write(f"\r  {CYAN}{description}{RESET} {downloaded // 1024} KB…")
+                sys.stdout.flush()
+    print()
 
 def run(cmd, check=True, capture=False, **kwargs):
     display = cmd if isinstance(cmd, str) else " ".join(str(c) for c in cmd)
     if DRY_RUN:
         print(f"  [dry-run] {display}")
         return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
-    
     subprocess_args = {
         "check": check,
         "capture_output": capture,
         "text": True,
-        "shell": isinstance(cmd, str)
+        "shell": isinstance(cmd, str),
     }
     subprocess_args.update(kwargs)
     return subprocess.run(cmd, **subprocess_args)
@@ -129,43 +121,68 @@ def clone_or_skip(url, dest: Path, name=""):
     ok(f"Cloned {name}")
     return True
 
-def copy_local(src_relative: str, dest: Path, required=True):
-    src = (DOTFILES_DIR / src_relative).resolve()
+def symlink_config(src_relative: str, dest: Path, required=True):
+    """
+    Create a symlink: dest -> src (inside DOTFILES_DIR).
+
+    Guards:
+    - src does not exist          → warn/skip
+    - src and dest are same path  → skip (would be self-referential)
+    - dest is already the correct symlink → skip
+    - dest exists (file/dir/bad symlink)  → back it up then re-link
+    """
+    src   = (DOTFILES_DIR / src_relative).resolve()
     label = dest.name
-    
+
     if DRY_RUN:
-        print(f"  [dry-run] Link {src} → {dest}")
-        return
-        
-    if not src.exists():
-        if required:
-            warn(f"{label}: source target not found at {src}")
-        else:
-            warn(f"{label} not found in dotfiles, skipping link")
-        return
-        
-    if dest.is_symlink() and dest.readlink() == src:
-        skip(f"{label} (correct symbolic link already managed)")
+        print(f"  [dry-run] symlink {dest} → {src}")
         return
 
-    if dest.exists() or dest.is_symlink():
-        backup = dest.with_suffix(dest.suffix + ".bak")
-        try:
-            if dest.is_dir() and not dest.is_symlink():
-                shutil.move(dest, backup)
-            else:
-                os.remove(dest) if dest.is_symlink() else shutil.move(dest, backup)
-            warn(f"Moved existing {label} out of the way to {backup.name}")
-        except Exception as e:
-            err(f"Could not handle existing path structural block for {label}: {e}")
+    # Source must exist in the dotfiles repo
+    if not src.exists():
+        (warn if required else lambda m: warn(m + " (optional)"))(
+            f"{label}: source not found at {src}"
+        )
+        return
+
+    # Guard: dest would point to itself (src IS dest — same resolved path)
+    try:
+        if src.resolve() == dest.resolve():
+            skip(f"{label} (source and destination are the same path)")
             return
-            
+    except OSError:
+        pass
+
+    # Guard: dest is already a correct symlink pointing to src
+    if dest.is_symlink():
+        try:
+            if dest.resolve() == src.resolve():
+                skip(f"{label} symlink already correct")
+                return
+        except OSError:
+            pass
+        # Wrong/dangling symlink — remove it
+        warn(f"Removing stale symlink: {dest}")
+        dest.unlink()
+
+    # Guard: dest exists as a real file/dir — back it up
+    elif dest.exists():
+        # Make sure backup doesn't land inside DOTFILES_DIR
+        backup = dest.with_name(dest.name + ".bak")
+        try:
+            shutil.move(str(dest), backup)
+            warn(f"Backed up existing {label} → {backup.name}")
+        except Exception as e:
+            err(f"Could not back up {dest}: {e}")
+            return
+
     ensure_dir(dest.parent)
     try:
         os.symlink(src, dest)
-        ok(f"Linked config workspace: {label} → {src.name}")
+        ok(f"Linked {dest} → {src}")
     except OSError as e:
         err(f"Failed to symlink {label}: {e}")
+
 
 def detect_pkg_manager():
     for pm in ("brew", "apt-get", "apt", "dnf", "pacman", "zypper"):
@@ -207,10 +224,8 @@ def fetch_latest_gridflux_asset(asset_keyword: str):
         with urllib.request.urlopen(req) as resp:
             data = json.loads(resp.read())
         version = data.get("tag_name", "unknown")
-        assets  = data.get("assets", [])
-        for asset in assets:
-            name = asset.get("name", "")
-            if asset_keyword.lower() in name.lower():
+        for asset in data.get("assets", []):
+            if asset_keyword.lower() in asset.get("name", "").lower():
                 return version, asset["browser_download_url"]
         return version, None
     except Exception as e:
@@ -223,7 +238,7 @@ def install_dev_deps():
 
     if OS == "Windows":
         warn("On Windows: install deps via winget, scoop, or choco manually.")
-        warn("    Required: cmake, gcc (MinGW), clang, golang, python3, nodejs")
+        warn("  Required: cmake, gcc (MinGW), clang, golang, python3, nodejs")
         return
 
     pm = detect_pkg_manager()
@@ -233,82 +248,45 @@ def install_dev_deps():
 
     dep_map = {
         "brew": {
-            "cmake":   "cmake",
-            "go":      "go",
-            "clang":   "llvm",
-            "gcc":     "gcc",
-            "python3": "python@3",
-            "node":    "node",
+            "cmake": "cmake", "go": "go", "clang": "llvm",
+            "gcc": "gcc", "python3": "python@3", "node": "node",
         },
         "apt-get": {
-            "cmake":   "cmake",
-            "go":      "golang-go",
-            "clang":   "clang",
-            "clangd":  "clangd",
-            "gcc":     "gcc",
-            "python3": "python3",
-            "node":    "nodejs",
-            "npm":     "npm",
+            "cmake": "cmake", "go": "golang-go", "clang": "clang",
+            "clangd": "clangd", "gcc": "gcc", "python3": "python3",
+            "node": "nodejs", "npm": "npm",
         },
         "apt": {
-            "cmake":   "cmake",
-            "go":      "golang-go",
-            "clang":   "clang",
-            "clangd":  "clangd",
-            "gcc":     "gcc",
-            "python3": "python3",
-            "node":    "nodejs",
-            "npm":     "npm",
+            "cmake": "cmake", "go": "golang-go", "clang": "clang",
+            "clangd": "clangd", "gcc": "gcc", "python3": "python3",
+            "node": "nodejs", "npm": "npm",
         },
         "dnf": {
-            "cmake":   "cmake",
-            "go":      "golang",
-            "clang":   "clang",
-            "clangd":  "clang-tools-extra",
-            "gcc":     "gcc",
-            "python3": "python3",
-            "node":    "nodejs",
-            "npm":     "npm",
+            "cmake": "cmake", "go": "golang", "clang": "clang",
+            "clangd": "clang-tools-extra", "gcc": "gcc", "python3": "python3",
+            "node": "nodejs", "npm": "npm",
         },
         "pacman": {
-            "cmake":   "cmake",
-            "go":      "go",
-            "clang":   "clang",
-            "clangd":  "clang",
-            "gcc":     "gcc",
-            "python3": "python",
-            "node":    "nodejs",
-            "npm":     "npm",
+            "cmake": "cmake", "go": "go", "clang": "clang",
+            "clangd": "clang", "gcc": "gcc", "python3": "python",
+            "node": "nodejs", "npm": "npm",
         },
         "zypper": {
-            "cmake":   "cmake",
-            "go":      "go",
-            "clang":   "clang",
-            "clangd":  "clang",
-            "gcc":     "gcc",
-            "python3": "python3",
-            "node":    "nodejs",
-            "npm":     "npm",
+            "cmake": "cmake", "go": "go", "clang": "clang",
+            "clangd": "clang", "gcc": "gcc", "python3": "python3",
+            "node": "nodejs", "npm": "npm",
         },
     }
 
-    tools = dep_map.get(pm, {})
-    to_install = []
-
-    checks = {
-        "cmake":   "cmake",
-        "go":      "go",
-        "clang":   "clang",
-        "clangd":  "clangd",
-        "gcc":     "gcc",
-        "python3": "python3",
-        "node":    "node",
-        "npm":     "npm",
+    tools    = dep_map.get(pm, {})
+    checks   = {
+        "cmake": "cmake", "go": "go", "clang": "clang", "clangd": "clangd",
+        "gcc": "gcc", "python3": "python3", "node": "node", "npm": "npm",
     }
-
+    to_install = []
     for label, binary in checks.items():
         if cmd_exists(binary):
-            skip(f"{label}")
+            skip(label)
         else:
             pkg = tools.get(label)
             if pkg and pkg not in to_install:
@@ -336,21 +314,14 @@ def install_font():
         warn(f"Unknown OS '{OS}', skipping font install")
         return
 
-    # Check for various variants of JetBrains Mono Nerd Font names
-    font_exists = False
     if font_dir.exists():
-        for item in font_dir.iterdir():
-            name_lower = item.name.lower()
-            if "jetbrains" in name_lower and ("nerd" in name_lower or "nf" in name_lower):
-                font_exists = True
-                break
-
-    if font_exists:
-        skip("JetBrainsMono Nerd Font")
-        return
+        for f in font_dir.iterdir():
+            n = f.name.lower()
+            if "jetbrains" in n and ("nerd" in n or "nf" in n):
+                skip("JetBrainsMono Nerd Font")
+                return
 
     ensure_dir(font_dir)
-
     if DRY_RUN:
         print(f"  [dry-run] Download {FONT_URL} → {font_dir}")
         ok("Font installed (dry-run)")
@@ -359,11 +330,10 @@ def install_font():
     with tempfile.TemporaryDirectory() as tmp:
         zip_path = Path(tmp) / "JetBrainsMono.zip"
         try:
-            download_with_progress(FONT_URL, zip_path, description="Downloading JetBrainsMono Nerd Font")
+            download_with_progress(FONT_URL, zip_path, "Downloading JetBrainsMono Nerd Font")
         except Exception as e:
             err(f"Failed to download font: {e}")
             return
-            
         with zipfile.ZipFile(zip_path) as zf:
             for member in zf.namelist():
                 if member.endswith((".ttf", ".otf")) and ("NF" in member or "Nerd" in member):
@@ -374,7 +344,6 @@ def install_font():
         run(["fc-cache", "-f", "-v"], check=False)
     elif OS == "Windows":
         warn("Font files copied. You may need to right-click → 'Install for all users'.")
-
     ok("JetBrainsMono Nerd Font installed")
 
 
@@ -383,22 +352,19 @@ def install_zsh():
 
     if OS == "Windows":
         warn("Zsh on Windows requires WSL. Skipping native zsh install.")
-        warn("If you're in WSL, re-run this script inside it.")
         return
 
     if not cmd_exists("zsh"):
-        log("Installing zsh")
         pkg_install(["zsh"])
         ok("zsh installed")
     else:
         skip("zsh")
 
-    zsh_path = shutil.which("zsh")
+    zsh_path     = shutil.which("zsh")
     current_shell = os.environ.get("SHELL", "")
     if zsh_path and zsh_path not in current_shell:
-        log(f"Setting default shell to {zsh_path}")
         run(["chsh", "-s", zsh_path], check=False)
-        ok("Default shell set to zsh")
+        ok(f"Default shell set to {zsh_path}")
     else:
         skip("Default shell already zsh")
 
@@ -408,9 +374,7 @@ def install_zsh():
     else:
         log("Installing oh-my-zsh")
         if not DRY_RUN:
-            run(
-                'sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
-            )
+            run('sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended')
         ok("oh-my-zsh installed")
 
     custom_dir = Path.home() / ".oh-my-zsh/custom/plugins"
@@ -421,25 +385,23 @@ def install_zsh():
     clone_or_skip(
         "https://github.com/romkatv/powerlevel10k",
         Path.home() / ".oh-my-zsh/custom/themes/powerlevel10k",
-        "powerlevel10k"
+        "powerlevel10k",
     )
 
-    copy_local("zsh/.zshrc",   Path.home() / ".zshrc")
-    copy_local("zsh/.p10k.zsh", Path.home() / ".p10k.zsh", required=False)
+    symlink_config("zsh/.zshrc",    Path.home() / ".zshrc")
+    symlink_config("zsh/.p10k.zsh", Path.home() / ".p10k.zsh", required=False)
 
 
 def install_neovim():
     log("Neovim")
 
     if not cmd_exists("nvim"):
-        log("Installing neovim")
         if OS == "Darwin":
             pkg_install(["neovim"], "brew")
         elif OS == "Linux":
             _install_nvim_linux()
         elif OS == "Windows":
-            warn("Install neovim from https://github.com/neovim/neovim/releases")
-            warn("Then re-run this script.")
+            warn("Install neovim from https://github.com/neovim/neovim/releases then re-run.")
             return
         ok("neovim installed")
     else:
@@ -462,21 +424,20 @@ def _install_nvim_linux():
         return
     ensure_dir(nvim_bin.parent)
     url = "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz"
-    log("Downloading latest neovim…")
     if DRY_RUN:
         print(f"  [dry-run] Download {url}")
         return
     with tempfile.TemporaryDirectory() as tmp:
         archive = Path(tmp) / "nvim.tar.gz"
         try:
-            download_with_progress(url, archive, description="Downloading Neovim binary")
+            download_with_progress(url, archive, "Downloading Neovim")
         except Exception as e:
             err(f"Failed to download Neovim: {e}")
             return
         run(["tar", "-xzf", str(archive), "-C", tmp])
         extracted = next(Path(tmp).glob("nvim-linux*"), None)
         if extracted:
-            run(f"cp -r {extracted}/. {Path.home() / '.local'}/", shell=True)
+            run(f"cp -r {extracted}/. {Path.home() / '.local'}/")
     ok("neovim installed to ~/.local/bin/nvim")
 
 
@@ -488,34 +449,37 @@ def install_kitty():
         return
 
     if not cmd_exists("kitty"):
-        log("Installing kitty")
-        run('curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin', shell=True)
+        run("curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin")
         ok("kitty installed")
     else:
         skip("kitty")
 
-    kitty_dir = Path.home() / ".config/kitty"
-    ensure_dir(kitty_dir)
+    kitty_config_dir = Path.home() / ".config/kitty"
+    ensure_dir(kitty_config_dir)
 
-    copy_local("kitty/kitty.conf",        kitty_dir / "kitty.conf")
-    copy_local("kitty/kitty-colors.conf", kitty_dir / "kitty-colors.conf", required=False)
+    symlink_config("kitty/kitty.conf",        kitty_config_dir / "kitty.conf")
+    symlink_config("kitty/kitty-colors.conf", kitty_config_dir / "kitty-colors.conf", required=False)
 
-    _patch_kitty_conf(kitty_dir / "kitty.conf")
-    _install_kitty_session(kitty_dir)
+    _patch_kitty_conf(kitty_config_dir / "kitty.conf")
+    _install_kitty_session(kitty_config_dir)
 
 def _patch_kitty_conf(conf_path: Path):
-    if DRY_RUN or not conf_path.exists():
+    """Patch kitty.conf via the real file, even if conf_path is a symlink."""
+    # Resolve to the actual file so we edit the source in dotfiles, not a copy
+    if conf_path.is_symlink():
+        real_path = conf_path.resolve()
+    else:
+        real_path = conf_path
+
+    if DRY_RUN or not real_path.exists():
         return
-    content = conf_path.read_text()
+
+    content = real_path.read_text()
     changed = False
 
-    correct_listen = "listen_on unix:/tmp/kitty-{kitty_pid}.sock"
+    listen_line = "listen_on unix:/tmp/kitty-{kitty_pid}.sock"
     if "listen_on" not in content:
-        content += f"\n# === Session auto-save (added by installer) ===\n{correct_listen}\n"
-        changed = True
-    elif UPDATE and correct_listen not in content:
-        import re
-        content = re.sub(r"listen_on\s+\S+", correct_listen, content)
+        content += f"\n# Session auto-save (added by installer)\n{listen_line}\n"
         changed = True
 
     if "allow_remote_control" not in content:
@@ -526,7 +490,7 @@ def _patch_kitty_conf(conf_path: Path):
         changed = True
 
     if changed:
-        conf_path.write_text(content)
+        real_path.write_text(content)
         ok("Patched kitty.conf with session directives")
     else:
         skip("kitty.conf session directives already present")
@@ -537,7 +501,7 @@ def _install_kitty_session(kitty_dir: Path):
     ensure_dir(session_dir)
 
     base_url = "https://raw.githubusercontent.com/dflock/kitty-save-session/main/"
-    scripts   = [
+    scripts  = [
         "kitty-convert-dump.py",
         "kitty-save-session-all.sh",
         "kitty-save-session-common.incl",
@@ -551,24 +515,14 @@ def _install_kitty_session(kitty_dir: Path):
             print(f"  [dry-run] Download {base_url + script} → {dest}")
             continue
         try:
-            download_with_progress(base_url + script, dest, description=f"Fetching {script}")
+            download_with_progress(base_url + script, dest, f"Fetching {script}")
         except Exception as e:
-            warn(f"Could not download script {script}: {e}")
-            continue
+            warn(f"Could not download {script}: {e}")
 
-    sh = kitty_dir / "kitty-save-session-all.sh"
-    py = kitty_dir / "kitty-convert-dump.py"
-    if not DRY_RUN and sh.exists():
-        sh.chmod(0o755)
-    if not DRY_RUN and py.exists():
-        py.chmod(0o755)
-
-    # Verify all critical scripts were downloaded before continuing
-    missing = [s for s in scripts if not (kitty_dir / s).exists()]
-    if missing:
-        err(f"Failed to download critical session scripts: {', '.join(missing)}")
-        warn("Session save/restore will not work. Re-run the installer or download manually.")
-        return
+    for name, mode in [("kitty-save-session-all.sh", 0o755), ("kitty-convert-dump.py", 0o755)]:
+        p = kitty_dir / name
+        if not DRY_RUN and p.exists():
+            p.chmod(mode)
 
     wrapper = Path.home() / ".local/bin/kitty-session"
     ensure_dir(wrapper.parent)
@@ -584,7 +538,7 @@ def _install_kitty_session(kitty_dir: Path):
                 'fi\n'
             )
             wrapper.chmod(0o755)
-        ok("kitty-session wrapper installed → ~/.local/bin/kitty-session")
+        ok("kitty-session wrapper → ~/.local/bin/kitty-session")
     else:
         skip("kitty-session wrapper")
 
@@ -602,7 +556,7 @@ def _setup_systemd_kitty_timer(kitty_dir: Path, session_dir: Path):
     if svc.exists() and tmr.exists() and not UPDATE:
         skip("systemd kitty-session timer")
         return
-    if (svc.exists() or tmr.exists()) and UPDATE:
+    if UPDATE:
         run(["systemctl", "--user", "disable", "--now", "kitty-session-save.timer"], check=False)
     ensure_dir(sd)
     if not DRY_RUN:
@@ -611,7 +565,6 @@ def _setup_systemd_kitty_timer(kitty_dir: Path, session_dir: Path):
             "[Service]\nType=oneshot\n"
             f"Environment=PATH={Path.home()}/.local/bin:/usr/local/bin:/usr/bin:/bin\n"
             f"Environment=KITTY_SESSION_SAVE_DIR={session_dir}\n"
-            "Environment=KITTY_SESSION_SOCK_PATTERN=/tmp/kitty-{kitty_pid}.sock\n"
             "Environment=KITTY_SESSION_SAVE_OPTS=--no-copy-env\n"
             f"ExecStart={kitty_dir}/kitty-save-session-all.sh\n"
         )
@@ -630,7 +583,7 @@ def _setup_launchd_kitty_timer(kitty_dir: Path, session_dir: Path):
     if plist.exists() and not UPDATE:
         skip("launchd kitty-session agent")
         return
-    if plist.exists() and UPDATE:
+    if UPDATE:
         run(["launchctl", "unload", str(plist)], check=False)
     ensure_dir(plist_dir)
     if not DRY_RUN:
@@ -663,11 +616,9 @@ def install_gridflux():
         warn("Gridflux does not support macOS yet. Skipping.")
         return
 
-    workshops = Path.home() / "Documents/Workshops"
-    ensure_dir(workshops)
+    ensure_dir(Path.home() / "Documents/Workshops")
     ensure_dir(Path.home() / "Documents/Works")
-
-    dest = workshops / "gridflux"
+    dest = Path.home() / "Documents/Workshops/gridflux"
 
     if OS == "Windows":
         _install_gridflux_windows(dest)
@@ -675,47 +626,36 @@ def install_gridflux():
         _install_gridflux_linux(dest)
 
 def _install_gridflux_windows(dest: Path):
-    bin_path = dest / "gridflux.exe"
-    if bin_path.exists():
+    if (dest / "gridflux.exe").exists():
         skip("gridflux already installed")
         return
-
-    log("Fetching latest gridflux release for Windows…")
     version, url = fetch_latest_gridflux_asset("gridflux-x64.msi")
-
     if url:
         ok(f"Latest release: {version}")
         if DRY_RUN:
             print(f"  [dry-run] Download {url}")
             return
         ensure_dir(dest)
-        msi_path = dest / "gridflux-x64.msi"
-        try:
-            download_with_progress(url, msi_path, description=f"Downloading gridflux {version} MSI")
-        except Exception as e:
-            err(f"Failed to download gridflux: {e}")
-            return
-        ok(f"Downloaded gridflux {version} msi → {msi_path}")
+        msi = dest / "gridflux-x64.msi"
+        download_with_progress(url, msi, f"Downloading gridflux {version}")
+        ok(f"Downloaded → {msi}")
         warn("Run the MSI installer manually to complete setup.")
     else:
-        warn(f"No Windows MSI asset found in release {version}.")
-        warn("Download manually: https://github.com/arxngr/gridflux/releases")
+        warn("No Windows MSI found. Download: https://github.com/arxngr/gridflux/releases")
         if not dest.exists():
-            log("Cloning gridflux source as fallback")
             run(["git", "clone", "--depth=1", GRIDFLUX_REPO, str(dest)])
             if cmd_exists("cmake"):
                 run(["cmake", "-B", "build"], cwd=dest)
                 run(["cmake", "--build", "build"], cwd=dest)
-                ok("gridflux built from source")
 
 def _install_gridflux_linux(dest: Path):
-    install_markers = [
+    markers = [
         Path.home() / ".local/bin/gridflux",
         Path("/usr/local/bin/gridflux"),
         Path("/usr/bin/gridflux"),
         dest / "build" / "gridflux",
     ]
-    already = next((p for p in install_markers if p.exists()), None)
+    already = next((p for p in markers if p.exists()), None)
     if already:
         skip(f"gridflux already installed ({already})")
         return
@@ -729,16 +669,15 @@ def _install_gridflux_linux(dest: Path):
 
     install_sh = dest / "scripts" / "install.sh"
     if not install_sh.exists():
-        warn("scripts/install.sh not found in repo — falling back to manual cmake build")
+        warn("scripts/install.sh not found — falling back to manual cmake build")
         _build_gridflux_linux_manual(dest)
         return
 
     log("Running gridflux scripts/install.sh")
     if DRY_RUN:
-        print(f"  [dry-run] chmod +x {install_sh} && bash {install_sh}")
+        print(f"  [dry-run] bash {install_sh}")
         ok("gridflux installed (dry-run)")
         return
-
     install_sh.chmod(0o755)
     run(["bash", str(install_sh)], cwd=dest)
     ok("gridflux installed via scripts/install.sh")
@@ -751,7 +690,6 @@ def _build_gridflux_linux_manual(dest: Path):
         "apt":     ["build-essential", "cmake", "pkg-config", "libx11-dev", "libjson-c-dev", "libdbus-1-dev", "libgtk-4-dev"],
         "dnf":     ["gcc", "cmake", "pkg-config", "libX11-devel", "json-c-devel", "dbus-devel", "gtk4-devel"],
         "pacman":  ["base-devel", "cmake", "libx11", "json-c", "dbus", "gtk4"],
-        "brew":    ["cmake", "pkg-config", "json-c"],
     }
     if pm in dep_map:
         pkg_install(dep_map[pm], pm)
@@ -761,19 +699,17 @@ def _build_gridflux_linux_manual(dest: Path):
     run(["cmake", "--build", "build", "--parallel"], cwd=dest)
     for binary in ["gridflux", "gridflux-cli", "gridflux-gui"]:
         src = dest / "build" / binary
-        if src.exists():
-            if not DRY_RUN:
-                shutil.copy(src, local_bin / binary)
-                (local_bin / binary).chmod(0o755)
+        if src.exists() and not DRY_RUN:
+            shutil.copy(src, local_bin / binary)
+            (local_bin / binary).chmod(0o755)
             ok(f"Installed {binary} → ~/.local/bin/{binary}")
     ok("gridflux built and installed")
 
 
 def setup_workspace_dirs():
     log("Workspace directories")
-    docs = Path.home() / "Documents"
     for name in ["Workshops", "Works"]:
-        d = docs / name
+        d = Path.home() / "Documents" / name
         if d.exists():
             skip(f"~/Documents/{name}")
         else:
@@ -789,148 +725,29 @@ def print_summary():
     print()
     print("Next steps:")
     if OS != "Windows":
-        print("   • Restart your terminal:  exec zsh")
-        print("   • Open kitty with session restore:")
-        print("        kitty-session")
-        print("    or add to ~/.zshrc:  alias kitty='kitty-session'")
+        print("  • Restart your terminal:       exec zsh")
+        print("  • Open kitty with restore:     kitty-session")
+        print("    or add to ~/.zshrc:           alias kitty='kitty-session'")
         print()
-        print("   • Launch neovim once to install plugins:")
-        print("        nvim")
+        print("  • First neovim launch (plugins install):  nvim")
     if OS == "Linux":
         print()
-        print("   • Start gridflux daemon:  gridflux &")
-        print("   • Optional GUI:            gridflux-gui")
+        print("  • Start gridflux:  gridflux &")
     if OS == "Windows":
-        print("   • Run the MSI from ~/Documents/Workshops/gridflux/")
+        print("  • Run MSI from ~/Documents/Workshops/gridflux/")
     print()
 
-
-
-def set_kitty_as_default():
-    if OS not in ("Linux", "Darwin"):
-        warn(f"Default terminal configuration not supported on OS: {OS}")
-        return
-
-    wrapper_path = f"{Path.home()}/.local/bin/kitty-session"
-
-    if OS == "Darwin":
-        log("Configuring Kitty wrapper application bundle launcher for macOS")
-        user_apps_dir = Path.home() / "Applications"
-        ensure_dir(user_apps_dir)
-        
-        app_bundle = user_apps_dir / "KittySession.app"
-        contents_dir = app_bundle / "Contents"
-        macos_dir = contents_dir / "MacOS"
-        resources_dir = contents_dir / "Resources"
-        
-        if app_bundle.exists():
-            skip("KittySession.app launcher bundle already exists")
-            return
-            
-        if DRY_RUN:
-            print(f"  [dry-run] Create macOS App Bundle wrapper launcher at {app_bundle}")
-            return
-            
-        ensure_dir(macos_dir)
-        ensure_dir(resources_dir)
-        
-        app_binary = macos_dir / "KittySession"
-        app_binary.write_text(
-            "#!/usr/bin/env zsh\n"
-            f"exec {wrapper_path} &>/dev/null &\n"
-        )
-        app_binary.chmod(0o755)
-        
-        info_plist = contents_dir / "Info.plist"
-        info_plist.write_text(
-            '<?xml version="1.0" encoding="UTF-8"?>\n'
-            '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n'
-            '<plist version="1.0">\n<dict>\n'
-            '  <key>CFBundleExecutable</key><string>KittySession</string>\n'
-            '  <key>CFBundleIdentifier</key><string>com.arxngr.KittySession</string>\n'
-            '  <key>CFBundleName</key><string>KittySession</string>\n'
-            '  <key>CFBundlePackageType</key><string>APPL</string>\n'
-            '  <key>CFBundleShortVersionString</key><string>1.0</string>\n'
-            '  <key>LSUIElement</key><true/>\n'
-            '</dict>\n</plist>\n'
-        )
-        
-        src_app = Path("/Applications/kitty.app")
-        if not src_app.exists():
-            src_app = Path.home() / "Applications/kitty.app"
-            
-        if src_app.exists():
-            src_icns = src_app / "Contents/Resources/kitty.icns"
-            if src_icns.exists():
-                shutil.copy(src_icns, resources_dir / "kitty.icns")
-                plist_lines = info_plist.read_text().splitlines()
-                plist_lines.insert(-2, '  <key>CFBundleIconFile</key><string>kitty.icns</string>')
-                info_plist.write_text("\n".join(plist_lines))
-
-        run(["touch", str(app_bundle)], check=False)
-        ok(f"Created native launcher: {app_bundle}")
-        return
-
-    log("Configuring Kitty wrapper as default system & GNOME terminal environment")
-    apps_dir = Path.home() / ".local/share/applications"
-    ensure_dir(apps_dir)
-    
-    local_desktop = apps_dir / "kitty.desktop"
-    sys_desktop = Path("/usr/share/applications/kitty.desktop")
-
-    if DRY_RUN:
-        print(f"  [dry-run] Patching system-wide defaults and GNOME settings for: {wrapper_path}")
-        return
-
-    if sys_desktop.exists() and not local_desktop.exists():
-        shutil.copy(sys_desktop, local_desktop)
-        content = local_desktop.read_text()
-        content = content.replace("Exec=kitty", f"Exec={wrapper_path}")
-        local_desktop.write_text(content)
-        run(["update-desktop-database", str(apps_dir)], check=False)
-        ok("Patched user desktop app entry icon link.")
-
-    xdg_config_dir = Path.home() / ".config" / "xdg-terminals.prop"
-    try:
-        xdg_config_dir.write_text("kitty.desktop\n")
-        ok("Set kitty as default via xdg-terminal-exec config.")
-    except Exception as e:
-        warn(f"Could not configure xdg-terminals.prop: {e}")
-
-    if cmd_exists("gsettings"):
-        run(["gsettings", "set", "org.gnome.desktop.default-terminal", "exec", f"'{wrapper_path}'"], check=False)
-        run(["gsettings", "set", "org.gnome.desktop.default-terminal", "exec-arg", "'-e'"], check=False)
-    
-    if cmd_exists("xdg-mime"):
-        run(["xdg-mime", "default", "kitty.desktop", "x-scheme-handler/terminal"], check=False)
-    
-    if cmd_exists("update-alternatives"):
-        try:
-            check_alt = run("update-alternatives --display x-terminal-emulator", capture=True, check=False)
-            if wrapper_path not in check_alt.stdout:
-                log("Elevating privileges to register system-wide x-terminal-emulator choice...")
-                run([
-                    "sudo", "update-alternatives", 
-                    "--install", "/usr/bin/x-terminal-emulator", "x-terminal-emulator", 
-                    wrapper_path, "50"
-                ], check=False)
-                run(["sudo", "update-alternatives", "--set", "x-terminal-emulator", wrapper_path], check=False)
-                ok("Registered and set kitty-session wrapper inside update-alternatives.")
-        except Exception as e:
-            warn(f"Could not automatically set update-alternatives: {e}")
-            
-    ok("GNOME desktop preferences refreshed successfully.")
 
 def main():
     global DRY_RUN, UPDATE
 
     parser = argparse.ArgumentParser(description="Ardi Nugraha dotfiles installer")
     parser.add_argument("--dry-run", action="store_true",
-                        help="Show what would be done without making changes")
+                        help="Preview changes without applying them")
     parser.add_argument("--skip", nargs="*", default=[], metavar="STEP",
                         help="Steps to skip: deps font zsh nvim kitty gridflux dirs")
     parser.add_argument("--update", nargs="*", default=None, metavar="STEP",
-                        help="Force re-apply configs even if already present (all steps if no args, or e.g. kitty zsh)")
+                        help="Force re-apply (all if no args, or e.g. --update kitty zsh)")
     args     = parser.parse_args()
     DRY_RUN  = args.dry_run
     skip_set = set(args.skip or [])
@@ -939,29 +756,28 @@ def main():
         print(f"{YELLOW}{BOLD}=== DRY RUN — nothing will be changed ==={RESET}\n")
     if args.update is not None:
         scope = ", ".join(args.update) if args.update else "all steps"
-        print(f"{YELLOW}{BOLD}=== UPDATE MODE — re-applying configs: {scope} ==={RESET}\n")
+        print(f"{YELLOW}{BOLD}=== UPDATE MODE — re-applying: {scope} ==={RESET}\n")
 
     print(f"{BOLD}{CYAN}")
     print("  ██████╗  ██████╗ ████████╗███████╗██╗██╗     ███████╗███████╗")
     print("  ██╔══██╗██╔═══██╗╚══██╔══╝██╔════╝██║██║     ██╔════╝██╔════╝")
     print("  ██║  ██║██║   ██║   ██║   █████╗  ██║██║     █████╗  ███████╗")
     print("  ██║  ██║██║   ██║   ██║   ██╔══╝  ██║██║     ██╔══╝  ╚════██║")
-    print("  ██████╔╝╚██████╔╝   ██║   ██║      ██║███████╗███████╗███████║")
-    print("  ╚═════╝  ╚═════╝    ╚═╝   ╚═╝      ╚═╝╚══════╝╚══════╝╚══════╝")
+    print("  ██████╔╝╚██████╔╝   ██║   ██║     ██║███████╗███████╗███████║")
+    print("  ╚═════╝  ╚═════╝    ╚═╝   ╚═╝     ╚═╝╚══════╝╚══════╝╚══════╝")
     print(f"{RESET}")
-    print(f"   Ardi Nugraha dotfiles installer  •  OS: {OS}\n")
+    print(f"  Ardi Nugraha dotfiles installer  •  OS: {OS}\n")
 
     require_git()
 
     steps = [
-        ("deps",    "Developer dependencies",         install_dev_deps),
-        ("font",    "JetBrainsMono Nerd Font",         install_font),
-        ("zsh",     "Zsh + oh-my-zsh + plugins",       install_zsh),
-        ("nvim",    "Neovim + pena.Vim",                install_neovim),
-        ("kitty",    "Kitty + session manager",         install_kitty),
-        ("default",  "Set Kitty App Icon Default",      set_kitty_as_default),
-        ("gridflux","Gridflux window manager",         install_gridflux),
-        ("dirs",    "Workspace directories",            setup_workspace_dirs),
+        ("deps",    "Developer dependencies",   install_dev_deps),
+        ("font",    "JetBrainsMono Nerd Font",   install_font),
+        ("zsh",     "Zsh + oh-my-zsh + plugins", install_zsh),
+        ("nvim",    "Neovim + pena.Vim",          install_neovim),
+        ("kitty",   "Kitty + session manager",   install_kitty),
+        ("gridflux","Gridflux window manager",   install_gridflux),
+        ("dirs",    "Workspace directories",     setup_workspace_dirs),
     ]
 
     for key, label, fn in steps:
