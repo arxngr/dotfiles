@@ -441,13 +441,71 @@ def _install_nvim_linux():
     ok("neovim installed to ~/.local/bin/nvim")
 
 
-def install_kitty():
-    log("Kitty terminal")
-
+def install_terminal():
+    """Terminal Emulator Chooser Menu"""
+    log("Terminal Emulator Setup")
     if OS == "Windows":
-        warn("Kitty doesn't run on Windows. Skipping.")
+        warn("Terminal choices are managed natively or via WSL on Windows. Skipping.")
         return
 
+    print(f"\n{BOLD}{CYAN}Select your preferred terminal emulator to configure:{RESET}")
+    print("  1) Kitty (GPU-accelerated, includes Session Architecture)")
+    print("  2) WezTerm (Lua-configurable, includes automatic directory Symlinking)")
+    
+    try:
+        choice = input(f"\n  {BOLD}Choose terminal option (1 or 2): {RESET}").strip()
+    except (KeyboardInterrupt, EOFError):
+        print()
+        err("Terminal installation step aborted by user.")
+        return
+
+    if choice == "1":
+        _setup_kitty()
+    elif choice == "2":
+        _setup_wezterm()
+    else:
+        warn("Invalid or empty choice selected. Skipping terminal setup step entirely.")
+
+
+def _setup_wezterm():
+    log("WezTerm Terminal")
+    if cmd_exists("wezterm"):
+        skip("wezterm binary")
+    else:
+        pm = detect_pkg_manager()
+        if pm == "brew":
+            run(["brew", "install", "--cask", "wezterm"])
+        elif pm in ("apt", "apt-get"):
+            log("Adding official WezTerm apt repository...")
+            try:
+                # Add the GPG key and add the repository source line
+                run("curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /usr/share/keyrings/wezterm-fury.gpg")
+                run("echo 'deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list")
+                # Refresh local apt caches
+                run(["sudo", "apt-get", "update"])
+                # Install the package safely
+                pkg_install(["wezterm"], pm)
+            except Exception as e:
+                err(f"Failed to bootstrap WezTerm repository: {e}")
+                warn("Please install WezTerm manually from https://wezfurlong.org/wezterm/install/linux.html")
+                return
+        elif pm in ("dnf", "pacman", "zypper"):
+            pkg_install(["wezterm"])
+        else:
+            warn("No supported package manager found to automate WezTerm. Install manually.")
+            return
+        ok("wezterm binary installed")
+
+    wezterm_config_dir = Path.home() / ".config/wezterm"
+    ensure_dir(wezterm_config_dir)
+
+    log("Configuring WezTerm environment target via symlink_config Engine")
+    # Links your source `.wezterm.lua` to the exact name WezTerm expects inside .config
+    symlink_config("wezterm/.wezterm.lua", wezterm_config_dir / "wezterm.lua")
+
+
+def _setup_kitty():
+    log("Kitty Terminal")
     if not cmd_exists("kitty"):
         run("curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin")
         ok("kitty installed")
@@ -775,7 +833,7 @@ def main():
         ("font",    "JetBrainsMono Nerd Font",   install_font),
         ("zsh",     "Zsh + oh-my-zsh + plugins", install_zsh),
         ("nvim",    "Neovim + pena.Vim",          install_neovim),
-        ("kitty",   "Kitty + session manager",   install_kitty),
+        ("terminal",   "Terminal emulator",   install_terminal),
         ("gridflux","Gridflux window manager",   install_gridflux),
         ("dirs",    "Workspace directories",     setup_workspace_dirs),
     ]

@@ -1,0 +1,1 @@
+/home/ardinugraha/Documents/Workshops/dotfiles/wezterm/.wezterm.lua

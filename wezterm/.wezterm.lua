@@ -1,12 +1,23 @@
 local wezterm = require("wezterm")
 local bar = wezterm.plugin.require("https://github.com/adriankarlen/bar.wezterm")
-
 local config = {}
 
-bar.apply_to_config(config)
+bar.apply_to_config(config, {
+	modules = {
+		tabs = {
+			active_tab_fg = 1,
+			active_tab_bg = "#10B1FE",
+			inactive_tab_fg = "#94a3b8",
+		},
+		clock = {
+			enabled = false,
+		},
+	},
+})
+
 -- **Basic Configuration**
 config.font = wezterm.font_with_fallback({
-	"JetBrainsMono NF Medium",
+	"JetBrainsMono NFM",
 	"Fira Code",
 	"Monospace",
 })
