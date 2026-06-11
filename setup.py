@@ -508,7 +508,7 @@ def _patch_kitty_conf(conf_path: Path):
     content = conf_path.read_text()
     additions = []
     if "listen_on" not in content:
-        additions.append("listen_on unix:@kitty-{kitty_pid}.sock")
+        additions.append("listen_on unix:/tmp/kitty-{kitty_pid}.sock")
     if "allow_remote_control" not in content:
         additions.append("allow_remote_control socket-only")
     elif "allow_remote_control yes" in content:
@@ -602,7 +602,7 @@ def _setup_systemd_kitty_timer(kitty_dir: Path, session_dir: Path):
             "[Service]\nType=oneshot\n"
             f"Environment=PATH={Path.home()}/.local/bin:/usr/local/bin:/usr/bin:/bin\n"
             f"Environment=KITTY_SESSION_SAVE_DIR={session_dir}\n"
-            "Environment=KITTY_SESSION_SOCK_PATTERN=@kitty-{kitty_pid}.sock\n"
+            "Environment=KITTY_SESSION_SOCK_PATTERN=/tmp/kitty-{kitty_pid}.sock\n"
             "Environment=KITTY_SESSION_SAVE_OPTS=--no-copy-env\n"
             f"ExecStart={kitty_dir}/kitty-save-session-all.sh\n"
         )
