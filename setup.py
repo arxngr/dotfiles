@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
 Ardi Nugraha dotfiles installer
-Installs: dev deps, zsh + plugins, kitty + session manager, neovim + pena.Vim,
-          JetBrainsMono Nerd Font, gridflux, and workspace directories.
+Installs: dev deps, zsh + plugins, kitty/wezterm + default terminal setup,
+          neovim + pena.Vim, JetBrainsMono Nerd Font, gridflux, and workspace directories.
 
 Usage:
     python3 install.py            # full install
     python3 install.py --dry-run  # preview without changes
     python3 install.py --skip font zsh
-    python3 install.py --update kitty zsh
+    python3 install.py --update terminal zsh
 """
 
 import argparse
@@ -46,9 +46,10 @@ RED    = "\033[31m"
 CYAN   = "\033[36m"
 RESET  = "\033[0m"
 
-DRY_RUN = False
-UPDATE  = False
-OS      = platform.system()  # "Linux" | "Darwin" | "Windows"
+DRY_RUN         = False
+UPDATE          = False
+OS              = platform.system()
+CHOSEN_TERMINAL: str | None = None
 
 
 def log(msg, color=CYAN):
@@ -65,6 +66,7 @@ def warn(msg):
 
 def err(msg):
     print(f"  {RED}✗{RESET} {msg}", file=sys.stderr)
+
 
 def download_with_progress(url, dest_path: Path, description="Downloading"):
     req = urllib.request.Request(url, headers={"User-Agent": "dotfiles-installer"})
@@ -122,15 +124,6 @@ def clone_or_skip(url, dest: Path, name=""):
     return True
 
 def symlink_config(src_relative: str, dest: Path, required=True):
-    """
-    Create a symlink: dest -> src (inside DOTFILES_DIR).
-
-    Guards:
-    - src does not exist          → warn/skip
-    - src and dest are same path  → skip (would be self-referential)
-    - dest is already the correct symlink → skip
-    - dest exists (file/dir/bad symlink)  → back it up then re-link
-    """
     src   = (DOTFILES_DIR / src_relative).resolve()
     label = dest.name
 
@@ -138,14 +131,12 @@ def symlink_config(src_relative: str, dest: Path, required=True):
         print(f"  [dry-run] symlink {dest} → {src}")
         return
 
-    # Source must exist in the dotfiles repo
     if not src.exists():
         (warn if required else lambda m: warn(m + " (optional)"))(
             f"{label}: source not found at {src}"
         )
         return
 
-    # Guard: dest would point to itself (src IS dest — same resolved path)
     try:
         if src.resolve() == dest.resolve():
             skip(f"{label} (source and destination are the same path)")
@@ -153,7 +144,6 @@ def symlink_config(src_relative: str, dest: Path, required=True):
     except OSError:
         pass
 
-    # Guard: dest is already a correct symlink pointing to src
     if dest.is_symlink():
         try:
             if dest.resolve() == src.resolve():
@@ -161,13 +151,10 @@ def symlink_config(src_relative: str, dest: Path, required=True):
                 return
         except OSError:
             pass
-        # Wrong/dangling symlink — remove it
         warn(f"Removing stale symlink: {dest}")
         dest.unlink()
 
-    # Guard: dest exists as a real file/dir — back it up
     elif dest.exists():
-        # Make sure backup doesn't land inside DOTFILES_DIR
         backup = dest.with_name(dest.name + ".bak")
         try:
             shutil.move(str(dest), backup)
@@ -233,6 +220,136 @@ def fetch_latest_gridflux_asset(asset_keyword: str):
         return None, None
 
 
+def set_default_terminal(terminal_name: str, bin_path: str | None = None):
+    log(f"Setting {terminal_name} as default terminal")
+
+    bin_path = bin_path or shutil.which(terminal_name)
+    if not bin_path and not DRY_RUN:
+        warn(f"Cannot find {terminal_name} binary — default terminal not changed.")
+        return
+
+    if OS == "Linux":
+        _set_default_terminal_linux(terminal_name, bin_path)
+    elif OS == "Darwin":
+        _set_default_terminal_macos(terminal_name, bin_path)
+    elif OS == "Windows":
+        _set_default_terminal_windows(terminal_name, bin_path)
+    else:
+        warn(f"Unknown OS '{OS}' — cannot set default terminal automatically.")
+
+
+def _set_default_terminal_linux(name: str, bin_path: str):
+    if cmd_exists("update-alternatives"):
+        result = run(
+            ["sudo", "update-alternatives", "--set", "x-terminal-emulator", bin_path],
+            check=False,
+        )
+        if not DRY_RUN and result.returncode == 0:
+            ok(f"update-alternatives: x-terminal-emulator → {bin_path}")
+        else:
+            run(
+                ["sudo", "update-alternatives", "--install",
+                 "/usr/bin/x-terminal-emulator", "x-terminal-emulator", bin_path, "50"],
+                check=False,
+            )
+            run(
+                ["sudo", "update-alternatives", "--set", "x-terminal-emulator", bin_path],
+                check=False,
+            )
+            ok(f"update-alternatives: registered and set {name}")
+
+    if cmd_exists("gsettings"):
+        schema = "org.gnome.desktop.default-applications.terminal"
+        run(["gsettings", "set", schema, "exec", bin_path], check=False)
+        run(["gsettings", "set", schema, "exec-arg", ""], check=False)
+        ok(f"gsettings: default terminal → {bin_path}")
+
+    if cmd_exists("xfconf-query"):
+        run([
+            "xfconf-query", "-c", "xfce4-session", "-p",
+            "/sessions/Failsafe/Client0_Command", "-s", bin_path,
+        ], check=False)
+        ok(f"xfconf-query: terminal → {bin_path}")
+
+    desktop_id = f"{name}.desktop"
+    mimeapps   = Path.home() / ".config/mimeapps.list"
+    if not DRY_RUN:
+        lines       = mimeapps.read_text().splitlines() if mimeapps.exists() else []
+        updated     = False
+        in_defaults = False
+        new_lines   = []
+        for line in lines:
+            if line.strip() == "[Default Applications]":
+                in_defaults = True
+            if in_defaults and line.startswith("x-scheme-handler/terminal="):
+                new_lines.append(f"x-scheme-handler/terminal={desktop_id}")
+                updated     = True
+                in_defaults = False
+                continue
+            new_lines.append(line)
+        if not updated:
+            new_lines.append("[Default Applications]")
+            new_lines.append(f"x-scheme-handler/terminal={desktop_id}")
+        mimeapps.parent.mkdir(parents=True, exist_ok=True)
+        mimeapps.write_text("\n".join(new_lines) + "\n")
+        ok(f"mimeapps.list: x-scheme-handler/terminal → {desktop_id}")
+
+
+def _set_default_terminal_macos(name: str, bin_path: str):
+    bundle_ids = {
+        "kitty":     "net.kovidgoyal.kitty",
+        "wezterm":   "com.github.wez.wezterm",
+        "iterm2":    "com.googlecode.iterm2",
+        "alacritty": "org.alacritty",
+    }
+    bundle = bundle_ids.get(name.lower())
+
+    if cmd_exists("duti") and bundle:
+        run(["duti", "-s", bundle, "x-scheme-handler/terminal", "all"], check=False)
+        ok(f"duti: default terminal → {bundle}")
+        return
+
+    if bundle:
+        warn("'duti' not found. Install it with:  brew install duti")
+        warn(f"Then run:  duti -s {bundle} x-scheme-handler/terminal all")
+    else:
+        warn(f"No bundle ID known for '{name}' on macOS.")
+    warn("You can also set the default terminal manually in your terminal app's preferences.")
+
+
+def _set_default_terminal_windows(name: str, bin_path: str):
+    wt_settings = (
+        Path(os.environ.get("LOCALAPPDATA", ""))
+        / "Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json"
+    )
+
+    if wt_settings.exists() and not DRY_RUN:
+        try:
+            with open(wt_settings) as f:
+                settings = json.load(f)
+            profiles = settings.get("profiles", {}).get("list", [])
+            for profile in profiles:
+                if name.lower() in profile.get("name", "").lower():
+                    settings["defaultProfile"] = profile.get("guid", "")
+                    with open(wt_settings, "w") as f:
+                        json.dump(settings, f, indent=4)
+                    ok(f"Windows Terminal: default profile → {profile['name']}")
+                    return
+            warn(f"No Windows Terminal profile found for '{name}'. Add it manually in settings.")
+        except Exception as e:
+            warn(f"Could not update Windows Terminal settings: {e}")
+
+    reg_key = r"HKCU\Console"
+    if DRY_RUN:
+        print(f"  [dry-run] reg add {reg_key} /v FaceName /t REG_SZ /d {bin_path} /f")
+    else:
+        run(
+            ["reg", "add", reg_key, "/v", "FaceName", "/t", "REG_SZ", "/d", bin_path, "/f"],
+            check=False,
+        )
+        ok(f"Registry: Console default → {bin_path}")
+
+
 def install_dev_deps():
     log("Developer dependencies")
 
@@ -249,39 +366,39 @@ def install_dev_deps():
     dep_map = {
         "brew": {
             "cmake": "cmake", "go": "go", "clang": "llvm",
-            "gcc": "gcc", "python3": "python@3", "node": "node","cargo": "cargo"
+            "gcc": "gcc", "python3": "python@3", "node": "node", "cargo": "cargo"
         },
         "apt-get": {
             "cmake": "cmake", "go": "golang-go", "clang": "clang",
-            "clangd": "clangd", "gcc": "gcc", "python3": "python3, python3",
+            "clangd": "clangd", "gcc": "gcc", "python3": "python3",
             "node": "nodejs", "npm": "npm", "cargo": "cargo"
         },
         "apt": {
             "cmake": "cmake", "go": "golang-go", "clang": "clang",
             "clangd": "clangd", "gcc": "gcc", "python3": "python3",
-            "node": "nodejs", "npm": "npm","cargo": "cargo"
+            "node": "nodejs", "npm": "npm", "cargo": "cargo"
         },
         "dnf": {
             "cmake": "cmake", "go": "golang", "clang": "clang",
             "clangd": "clang-tools-extra", "gcc": "gcc", "python3": "python3",
-            "node": "nodejs", "npm": "npm","cargo": "cargo"
+            "node": "nodejs", "npm": "npm", "cargo": "cargo"
         },
         "pacman": {
             "cmake": "cmake", "go": "go", "clang": "clang",
             "clangd": "clang", "gcc": "gcc", "python3": "python",
-            "node": "nodejs", "npm": "npm","cargo": "cargo"
+            "node": "nodejs", "npm": "npm", "cargo": "cargo"
         },
         "zypper": {
             "cmake": "cmake", "go": "go", "clang": "clang",
             "clangd": "clang", "gcc": "gcc", "python3": "python3",
-            "node": "nodejs", "npm": "npm","cargo": "cargo"
+            "node": "nodejs", "npm": "npm", "cargo": "cargo"
         },
     }
 
-    tools    = dep_map.get(pm, {})
-    checks   = {
+    tools  = dep_map.get(pm, {})
+    checks = {
         "cmake": "cmake", "go": "go", "clang": "clang", "clangd": "clangd",
-        "gcc": "gcc", "python3": "python3", "node": "node", "npm": "npm","cargo": "cargo"
+        "gcc": "gcc", "python3": "python3", "node": "node", "npm": "npm", "cargo": "cargo"
     }
     to_install = []
     for label, binary in checks.items():
@@ -360,7 +477,7 @@ def install_zsh():
     else:
         skip("zsh")
 
-    zsh_path     = shutil.which("zsh")
+    zsh_path      = shutil.which("zsh")
     current_shell = os.environ.get("SHELL", "")
     if zsh_path and zsh_path not in current_shell:
         run(["chsh", "-s", zsh_path], check=False)
@@ -442,18 +559,15 @@ def _install_nvim_linux():
 
 
 def install_terminal():
-    """Terminal Emulator Chooser Menu"""
+    global CHOSEN_TERMINAL
     log("Terminal Emulator Setup")
-    if OS == "Windows":
-        warn("Terminal choices are managed natively or via WSL on Windows. Skipping.")
-        return
 
-    print(f"\n{BOLD}{CYAN}Select your preferred terminal emulator to configure:{RESET}")
-    print("  1) Kitty (GPU-accelerated, includes Session Architecture)")
-    print("  2) WezTerm (Lua-configurable, includes automatic directory Symlinking)")
-    
+    print(f"\n{BOLD}{CYAN}Select your preferred terminal emulator:{RESET}")
+    print("  1) Kitty   — GPU-accelerated, includes session restore")
+    print("  2) WezTerm — Lua-configurable, automatic directory symlinking")
+
     try:
-        choice = input(f"\n  {BOLD}Choose terminal option (1 or 2): {RESET}").strip()
+        choice = input(f"\n  {BOLD}Choose (1 or 2): {RESET}").strip()
     except (KeyboardInterrupt, EOFError):
         print()
         err("Terminal installation step aborted by user.")
@@ -461,47 +575,15 @@ def install_terminal():
 
     if choice == "1":
         _setup_kitty()
+        CHOSEN_TERMINAL = "kitty"
     elif choice == "2":
         _setup_wezterm()
+        CHOSEN_TERMINAL = "wezterm"
     else:
-        warn("Invalid or empty choice selected. Skipping terminal setup step entirely.")
+        warn("Invalid choice. Skipping terminal setup.")
+        return
 
-
-def _setup_wezterm():
-    log("WezTerm Terminal")
-    if cmd_exists("wezterm"):
-        skip("wezterm binary")
-    else:
-        pm = detect_pkg_manager()
-        if pm == "brew":
-            run(["brew", "install", "--cask", "wezterm"])
-        elif pm in ("apt", "apt-get"):
-            log("Adding official WezTerm apt repository...")
-            try:
-                # Add the GPG key and add the repository source line
-                run("curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /usr/share/keyrings/wezterm-fury.gpg")
-                run("echo 'deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list")
-                # Refresh local apt caches
-                run(["sudo", "apt-get", "update"])
-                # Install the package safely
-                pkg_install(["wezterm"], pm)
-            except Exception as e:
-                err(f"Failed to bootstrap WezTerm repository: {e}")
-                warn("Please install WezTerm manually from https://wezfurlong.org/wezterm/install/linux.html")
-                return
-        elif pm in ("dnf", "pacman", "zypper"):
-            pkg_install(["wezterm"])
-        else:
-            warn("No supported package manager found to automate WezTerm. Install manually.")
-            return
-        ok("wezterm binary installed")
-
-    wezterm_config_dir = Path.home() / ".config/wezterm"
-    ensure_dir(wezterm_config_dir)
-
-    log("Configuring WezTerm environment target via symlink_config Engine")
-    # Links your source `.wezterm.lua` to the exact name WezTerm expects inside .config
-    symlink_config("wezterm/.wezterm.lua", wezterm_config_dir / "wezterm.lua")
+    set_default_terminal(CHOSEN_TERMINAL)
 
 
 def _setup_kitty():
@@ -522,8 +604,6 @@ def _setup_kitty():
     _install_kitty_session(kitty_config_dir)
 
 def _patch_kitty_conf(conf_path: Path):
-    """Patch kitty.conf via the real file, even if conf_path is a symlink."""
-    # Resolve to the actual file so we edit the source in dotfiles, not a copy
     if conf_path.is_symlink():
         real_path = conf_path.resolve()
     else:
@@ -537,7 +617,7 @@ def _patch_kitty_conf(conf_path: Path):
 
     listen_line = "listen_on unix:/tmp/kitty-{kitty_pid}.sock"
     if "listen_on" not in content:
-        content += f"\n# Session auto-save (added by installer)\n{listen_line}\n"
+        content += f"\n{listen_line}\n"
         changed = True
 
     if "allow_remote_control" not in content:
@@ -667,6 +747,37 @@ def _setup_launchd_kitty_timer(kitty_dir: Path, session_dir: Path):
     ok("launchd kitty-session agent enabled")
 
 
+def _setup_wezterm():
+    log("WezTerm Terminal")
+    if cmd_exists("wezterm"):
+        skip("wezterm binary")
+    else:
+        pm = detect_pkg_manager()
+        if pm == "brew":
+            run(["brew", "install", "--cask", "wezterm"])
+        elif pm in ("apt", "apt-get"):
+            log("Adding official WezTerm apt repository…")
+            try:
+                run("curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /usr/share/keyrings/wezterm-fury.gpg")
+                run("echo 'deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list")
+                run(["sudo", "apt-get", "update"])
+                pkg_install(["wezterm"], pm)
+            except Exception as e:
+                err(f"Failed to bootstrap WezTerm repository: {e}")
+                warn("Please install WezTerm manually from https://wezfurlong.org/wezterm/install/linux.html")
+                return
+        elif pm in ("dnf", "pacman", "zypper"):
+            pkg_install(["wezterm"])
+        else:
+            warn("No supported package manager found to automate WezTerm. Install manually.")
+            return
+        ok("wezterm binary installed")
+
+    wezterm_config_dir = Path.home() / ".config/wezterm"
+    ensure_dir(wezterm_config_dir)
+    symlink_config("wezterm/.wezterm.lua", wezterm_config_dir / "wezterm.lua")
+
+
 def install_gridflux():
     log("Gridflux")
 
@@ -782,17 +893,28 @@ def print_summary():
     print(f"{BOLD}{GREEN}{'─'*54}{RESET}")
     print()
     print("Next steps:")
+
     if OS != "Windows":
-        print("  • Restart your terminal:       exec zsh")
-        print("  • Open kitty with restore:     kitty-session")
-        print("    or add to ~/.zshrc:           alias kitty='kitty-session'")
+        print("  • Restart your terminal:  exec zsh")
+        print()
+
+    if CHOSEN_TERMINAL == "kitty":
+        print("  • Open kitty with session restore:  kitty-session")
+        print("    or add to ~/.zshrc:                alias kitty='kitty-session'")
+    elif CHOSEN_TERMINAL == "wezterm":
+        print("  • Open WezTerm — config is at ~/.config/wezterm/wezterm.lua")
+
+    if OS != "Windows":
         print()
         print("  • First neovim launch (plugins install):  nvim")
+
     if OS == "Linux":
         print()
         print("  • Start gridflux:  gridflux &")
+
     if OS == "Windows":
         print("  • Run MSI from ~/Documents/Workshops/gridflux/")
+
     print()
 
 
@@ -803,9 +925,9 @@ def main():
     parser.add_argument("--dry-run", action="store_true",
                         help="Preview changes without applying them")
     parser.add_argument("--skip", nargs="*", default=[], metavar="STEP",
-                        help="Steps to skip: deps font zsh nvim kitty gridflux dirs")
+                        help="Steps to skip: deps font zsh nvim terminal gridflux dirs")
     parser.add_argument("--update", nargs="*", default=None, metavar="STEP",
-                        help="Force re-apply (all if no args, or e.g. --update kitty zsh)")
+                        help="Force re-apply (all if no args, or e.g. --update terminal zsh)")
     args     = parser.parse_args()
     DRY_RUN  = args.dry_run
     skip_set = set(args.skip or [])
@@ -829,13 +951,13 @@ def main():
     require_git()
 
     steps = [
-        ("deps",    "Developer dependencies",   install_dev_deps),
-        ("font",    "JetBrainsMono Nerd Font",   install_font),
-        ("zsh",     "Zsh + oh-my-zsh + plugins", install_zsh),
-        ("nvim",    "Neovim + pena.Vim",          install_neovim),
-        ("terminal",   "Terminal emulator",   install_terminal),
-        ("gridflux","Gridflux window manager",   install_gridflux),
-        ("dirs",    "Workspace directories",     setup_workspace_dirs),
+        ("deps",     "Developer dependencies",   install_dev_deps),
+        ("font",     "JetBrainsMono Nerd Font",   install_font),
+        ("zsh",      "Zsh + oh-my-zsh + plugins", install_zsh),
+        ("nvim",     "Neovim + pena.Vim",          install_neovim),
+        ("terminal", "Terminal emulator",          install_terminal),
+        ("gridflux", "Gridflux window manager",   install_gridflux),
+        ("dirs",     "Workspace directories",     setup_workspace_dirs),
     ]
 
     for key, label, fn in steps:
