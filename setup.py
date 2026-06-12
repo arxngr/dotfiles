@@ -431,14 +431,14 @@ def install_font():
         warn(f"Unknown OS '{OS}', skipping font install")
         return
 
-    if font_dir.exists():
-        for f in font_dir.iterdir():
-            n = f.name.lower()
-            if "jetbrains" in n and ("nerd" in n or "nf" in n):
-                skip("JetBrainsMono Nerd Font")
-                return
-
     ensure_dir(font_dir)
+
+    # Check specifically for the Mono SemiBold variant we need
+    mono_semibold = font_dir / "JetBrainsMonoNerdFontMono-SemiBold.ttf"
+    if mono_semibold.exists() and not UPDATE:
+        skip("JetBrainsMono Nerd Font Mono SemiBold")
+        return
+
     if DRY_RUN:
         print(f"  [dry-run] Download {FONT_URL} → {font_dir}")
         ok("Font installed (dry-run)")
@@ -453,9 +453,10 @@ def install_font():
             return
         with zipfile.ZipFile(zip_path) as zf:
             for member in zf.namelist():
-                if member.endswith((".ttf", ".otf")) and ("NF" in member or "Nerd" in member):
+                name = Path(member).name
+                if name.endswith((".ttf", ".otf")) and "NerdFontMono" in name:
                     zf.extract(member, tmp)
-                    shutil.copy(Path(tmp) / member, font_dir / Path(member).name)
+                    shutil.copy(Path(tmp) / member, font_dir / name)
 
     if OS == "Linux":
         run(["fc-cache", "-f", "-v"], check=False)
